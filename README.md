@@ -1,6 +1,3 @@
-Here's an example of a `README.md` with instructions on how to create a virtual environment and install the dependencies from `requirements.txt`:
-
-```markdown
 # Game Project with Pygame
 
 This project is a Python-based game using Pygame. It includes both client-server functionality, allowing you to either host a game or join an existing server.
