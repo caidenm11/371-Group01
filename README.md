@@ -62,6 +62,14 @@ This will install Pygame and any other dependencies listed in the `requirements.
 
 You can now run the game by using the appropriate entry point.
 
+To start a new game:
+  ```bash
+  python main.py
+  ```
+
+Below is for future reference.
+
+~~
 - To start a new game and host a server:
   ```bash
   python main.py --host
@@ -71,6 +79,7 @@ You can now run the game by using the appropriate entry point.
   ```bash
   python main.py --join <server_address>
   ```
+~~
 
 ### 6. Deactivate the Virtual Environment
 
