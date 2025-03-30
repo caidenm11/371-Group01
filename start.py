@@ -58,7 +58,10 @@ while running:
         player_pos.x += 300 * dt
 
     # collision detection for player touching an object
-    player_rect = pygame.Rect(player_pos.x - player_radius, player_pos.y - player_radius, player_radius * 2, player_radius * 2)
+    player_rect = pygame.Rect(player_pos.x - player_radius, 
+                              player_pos.y - player_radius, 
+                              player_radius * 2, 
+                              player_radius * 2)
     if player_rect.colliderect(part.rect):
         if part.name not in collected_parts:
             collected_parts.append(part.name)
