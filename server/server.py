@@ -163,7 +163,6 @@ def process_packet(data):
         else:
             print(f"Unknown packet type: {action}")
         
-
 def start_server():
     global user_count
     host = socket.gethostname()
