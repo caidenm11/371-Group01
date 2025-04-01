@@ -3,11 +3,31 @@ import pygame
 from client.client import start_client, send_key, close_client
 import client.client as client_var
 
-players_pos = None
+players = {}
+objects = {}
+
+class Player:
+    def __init__(self, player_id, x, y, color="red"):
+        self.id = player_id
+        self.pos = pygame.Vector2(x, y)
+        self.color = color  # Placeholder for unique player colors
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, self.pos, 40)
+
+class GameObject:
+    def __init__(self, object_id, x, y, color="blue"):  # Placeholder for object visuals
+        self.id = object_id
+        self.pos = pygame.Vector2(x, y)
+        self.color = color
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
 def start_game():
     # pygame setup
-    global players_pos
+    global players
+    global objects
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
@@ -16,8 +36,7 @@ def start_game():
 
     start_client()
 
-    players_pos = [pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2) for _ in range(4)]
-    print(players_pos)
+    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
 
     while running:
         # poll for events
@@ -29,26 +48,23 @@ def start_game():
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("purple")
 
-        for player in players_pos:
-            pygame.draw.circle(screen, "red", player, 40)
+        for player in players.values():
+            player.draw(screen)
 
         keys = pygame.key.get_pressed()
+        movement = ""
+
         if keys[pygame.K_w]:
-            players_pos[int(client_var.client_id) - 1].y -= 300 * dt
-            pos = str(players_pos[int(client_var.client_id) - 1].x) + ' ' + str(players_pos[int(client_var.client_id) - 1].y)
-            send_key(pos)
+            movement += "w"
         if keys[pygame.K_s]:
-            players_pos[int(client_var.client_id) - 1].y += 300 * dt
-            pos = str(players_pos[int(client_var.client_id) - 1].x) + ' ' + str(players_pos[int(client_var.client_id) - 1].y)
-            send_key(pos)
+            movement += "s"
         if keys[pygame.K_a]:
-            players_pos[int(client_var.client_id) - 1].x -= 300 * dt
-            pos = str(players_pos[int(client_var.client_id) - 1].x) + ' ' + str(players_pos[int(client_var.client_id) - 1].y)
-            send_key(pos)
+            movement += "a"
         if keys[pygame.K_d]:
-            players_pos[int(client_var.client_id) - 1].x += 300 * dt
-            pos = str(players_pos[int(client_var.client_id) - 1].x) + ' ' + str(players_pos[int(client_var.client_id) - 1].y)
-            send_key(pos)
+            movement += "d"
+
+        if movement:  # Only send if there's a movement command
+            send_key(movement)
 
         # flip() the display to put your work on screen
         pygame.display.flip()
