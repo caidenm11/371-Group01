@@ -6,6 +6,7 @@ import client.client as client_var
 players = {}
 objects = {}
 
+
 class Player:
     def __init__(self, player_id, x, y, color="red"):
         self.id = player_id
@@ -14,6 +15,7 @@ class Player:
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, self.pos, 40)
+
 
 class GameObject:
     def __init__(self, object_id, x, y, color="blue"):  # Placeholder for object visuals
@@ -24,17 +26,27 @@ class GameObject:
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
-def start_game():
+
+def start_game(host="0.0.0.0", port=53333):
+    # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
+
     # pygame setup
     global players
     global objects
     pygame.init()
     screen = pygame.display.set_mode((1280, 720))
     clock = pygame.time.Clock()
+
+    # Try to connect
+    try:
+        start_client(host)
+    except Exception as e:
+        print(f"❌ Failed to connect to server at {host}: {e}")
+        pygame.quit()
+        return
     running = True
     dt = 0
 
-    start_client()
 
     players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
 

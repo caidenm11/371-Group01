@@ -3,20 +3,23 @@ import threading
 import client.game as game_var
 from enum import IntEnum
 
+
 # Actions the client sends to server
 class ClientPacketType(IntEnum):
-    MOVE_PLAYER = 1 # ClientPacketType.MOVE:<Player ID>:<Keys>
-    PICKUP_ITEM = 2 # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
-    DROP_ITEM = 3 # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
+    MOVE_PLAYER = 1  # ClientPacketType.MOVE:<Player ID>:<Keys>
+    PICKUP_ITEM = 2  # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
+    DROP_ITEM = 3  # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
+
 
 # Actions the client receives from server
 class ServerPacketType(IntEnum):
-    MOVE_PLAYER = 1 # ServerPacketType.MOVE_PLAYER:<Player ID>:<x>:<y>:<state>
-    SPAWN_PLAYER = 2 # ServerPacketType.SPAWN_PLAYER:<Player ID>:<x>:<y>
-    PICKUP_ITEM = 3 # ServerPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
-    DROP_ITEM = 4 # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
-    SPAWN_ITEM = 5 # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>
-    DESPAWN_ITEM = 6 # ServerPacketType.DESPAWN:<Object ID>
+    MOVE_PLAYER = 1  # ServerPacketType.MOVE_PLAYER:<Player ID>:<x>:<y>:<state>
+    SPAWN_PLAYER = 2  # ServerPacketType.SPAWN_PLAYER:<Player ID>:<x>:<y>
+    PICKUP_ITEM = 3  # ServerPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
+    DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
+    SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>
+    DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN:<Object ID>
+
 
 def ServerPacketMaker(action, player_id=None, object_id=None, keys=None, state=None):
     packet = [str(action)]
@@ -30,6 +33,7 @@ def ServerPacketMaker(action, player_id=None, object_id=None, keys=None, state=N
         packet.append(str(state))
     return ":".join(packet) + "\n"  # Append delimiter for TCP streaming
 
+
 host = socket.gethostname()
 port = 53333
 
@@ -38,6 +42,7 @@ client_socket = None
 message = None
 
 player_id = 0
+
 
 def buffered_recv(sock):
     buffer = ""
@@ -57,12 +62,14 @@ def buffered_recv(sock):
             print(f"Socket error: {e}")
             break
 
+
 def server_listener(client_socket, address):
     for message in buffered_recv(client_socket):
         print(f"Received: {message}")
         process_packet(message)
 
     client_socket.close()
+
 
 def process_packet(data):
     parts = data.split(":")
@@ -90,7 +97,7 @@ def process_packet(data):
         else:
             game_var.players[player_id].pos.x = x
             game_var.players[player_id].pos.y = y
-        
+
         print(f"Spawned Player {player_id} at ({x}, {y})")
 
     elif action == ServerPacketType.SPAWN_ITEM:
@@ -107,16 +114,20 @@ def process_packet(data):
         print(f"Unknown packet type: {action}")
 
 
-
-def start_client():
+def start_client(host="0.0.0.0", port=53333):
     global client_socket
     global player_id
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
+    print(f"[CLIENT] Connected from local socket: {client_socket.getsockname()}")
+
     player_id = client_socket.recv(1024).decode()
-    #print(client_id)
+    # print(client_id)
     client_thread = threading.Thread(target=server_listener, daemon=True, args=(client_socket, None))
     client_thread.start()
+
+
+
 
 def send_key(data):
     global client_socket
@@ -124,6 +135,7 @@ def send_key(data):
     data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
     message = data.encode("utf-8")
     client_socket.send(message)
+
 
 def close_client():
     global client_socket

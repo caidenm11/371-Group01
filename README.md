@@ -90,3 +90,29 @@ deactivate
 ```
 
 This will return you to your global Python environment.
+
+
+
+
+### Changes
+~~
+
+#### Server
+
+To run the server standalone currently just after installing all of the packages run python (or python3 on mac) startserver.py.
+
+
+#### Client 
+  To connect from a client that's on the same wifi, find the server's local IP address and use that as the host.
+
+  To find the local IP address of the server, run `ipconfig` on Windows or `ifconfig` on Linux/Mac.
+
+  The local IP address is typically in the format 192.168.x.x or 10.x.x.x.
+
+  To run this will be in the format python `startclient.py --host 192.168.1.42`
+      where `192.168.1.42` is the local IP address of the server.
+
+
+
+
+ 

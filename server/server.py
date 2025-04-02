@@ -1,183 +1,92 @@
 import socket
 import threading
-from enum import IntEnum
+import logging
+from server.packet_maker import PacketMaker
+from server.packet_maker import ServerPacketType, ClientPacketType
+from Engine.player import Player
+from Engine.gameobject import GameObject
+logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
-# Actions that server receives from clients
-class ClientPacketType(IntEnum):
-    MOVE_PLAYER = 1 # ClientPacketType.MOVE:<Player ID>:<Keys>
-    PICKUP_ITEM = 2 # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
-    DROP_ITEM = 3 # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
 
-# Actions that server sends to clients
-class ServerPacketType(IntEnum):
-    MOVE_PLAYER = 1 # ServerPacketType.MOVE_PLAYER:<Player ID>:<x>:<y>:<state>
-    SPAWN_PLAYER = 2 # ServerPacketType.SPAWN_PLAYER:<Player ID>:<x>:<y>
-    PICKUP_ITEM = 3 # ServerPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
-    DROP_ITEM = 4 # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
-    SPAWN_ITEM = 5 # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>
-    DESPAWN_ITEM = 6 # ServerPacketType.DESPAWN:<Object ID>
+class Server:
+    def __init__(self, host='0.0.0.0', port=53333):
+        self.host = host or socket.gethostname()
+        self.port = port
+        self.user_count = 0
+        self.client_list = []
+        self.players = {}
+        self.objects = {}
+        self.next_object_id = 100
+        self.running = True
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# For making packets to send to client
-def ClientPacketMaker(action, player_id=None, object_id=None, x=None, y=None, state=None):
-    packet = [str(action)]
-    if player_id is not None:
-        packet.append(str(player_id))
-    if object_id is not None:
-        packet.append(str(object_id))
-    if x is not None and y is not None:
-        packet.append(str(x))
-        packet.append(str(y))
-    if state is not None:
-        packet.append(str(state))
-    return ":".join(packet) + "\n"  # Append delimiter
+    def new_client(self, client_socket, addr):
+        logging.info(f"Client connected: {addr}")
+        buffer = ""
+        try:
+            while self.running:
+                data = client_socket.recv(1024).decode()
+                if not data:
+                    break
+                buffer += data
+                while "\n" in buffer:
+                    msg, buffer = buffer.split("\n", 1)
+                    self.process_packet(msg)
+        except Exception as e:
+            logging.error(f"Client error {addr}: {e}")
+        finally:
+            client_socket.close()
+            self.client_list.remove(client_socket)
+            logging.info(f"Client disconnected: {addr}")
 
-user_count = 0
-client_list = []
-
-class Player:
-    def __init__(self, player_id, x=0, y=0):
-        self.player_id = player_id
-        self.x = x
-        self.y = y
-        self.inventory = []  # List of held object IDs
-
-    def move(self, keys):
-        speed = 7
-        if "w" in keys:
-            self.y -= speed
-        if "s" in keys:
-            self.y += speed
-        if "a" in keys:
-            self.x -= speed
-        if "d" in keys:
-            self.x += speed
-
-class GameObject:
-    def __init__(self, object_id, x, y):
-        self.object_id = object_id
-        self.x = x
-        self.y = y
-        self.held_by = None  # None means it's on the ground
-
-# Game state should be moved to another file but could probably stay here for now
-players = {}  # {player_id: Player instance}
-objects = {}  # {object_id: GameObject instance}
-next_object_id = 100  # Starting ID for objects
-
-def buffered_recv(socket):
-    buffer = ""
-    while True:
-        data = socket.recv(1024).decode()
-        if not data:
-            break
-        buffer += data
-        while "\n" in buffer:  # Process only full messages
-            msg, buffer = buffer.split("\n", 1)
-            yield msg
-
-def new_client(client_socket, addr):
-    global client_list
-    for data in buffered_recv(client_socket):
-        print("Received:", data)
-        process_packet(data)
-    client_socket.close()
-
-# Server-side spawning of a player
-def spawn_player(player_id, x, y):
-    # Spawn the player and send the spawn packet to all clients
-    players[player_id] = Player(player_id, x, y)
-    ClientPacketMaker(ServerPacketType.SPAWN_PLAYER, player_id, x=x, y=y)
-
-# Server-side spawning of an item
-def spawn_item(object_id, x, y):
-    # Spawn the item and send the spawn packet to all clients
-    objects[object_id] = GameObject(object_id, x, y)
-    ClientPacketMaker(ServerPacketType.SPAWN_ITEM, object_id, x=x, y=y)
-
-# Server-side despawning of an item
-def despawn_item(object_id):
-    # Remove the object and send the despawn packet to all clients
-    if object_id in objects:
-        del objects[object_id]
-        ClientPacketMaker(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
-    
-# Process incoming packets
-def process_packet(data):
-    global next_object_id
-
-    packets = data.split("\n")
-
-    for packet in packets:
-        if not packet:
-            continue
-
-        print(f"Received packet: {packet}")
+    def process_packet(self, packet):
         parts = packet.split(":")
         action = int(parts[0])
 
         if action == ClientPacketType.MOVE_PLAYER:
-            player_id = int(parts[1])
-            keys = parts[2]
+            player_id, keys = int(parts[1]), parts[2]
+            player = self.players.get(player_id)
+            if player:
+                player.move(keys)
+                update_msg = PacketMaker.make(ServerPacketType.MOVE_PLAYER, player_id, x=player.x, y=player.y)
+                self.broadcast(update_msg)
 
-            # Ensure player exists
-            if player_id not in players:
-                players[player_id] = Player(player_id)
+    def broadcast(self, message):
+        for sock in self.client_list:
+            sock.send(message.encode())
 
-            players[player_id].move(keys)
+    def accept_connection(self):
+        try:
+            client_socket, address = self.server_socket.accept()
+            return client_socket, address
+        except socket.timeout:
+            return None
 
-            # Send updated position to all clients
-            update_msg = ClientPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, x=players[player_id].x, y=players[player_id].y)
-            for socket in client_list:
-                socket.send(update_msg.encode())
+    def start(self):
+        self.server_socket.bind((self.host, self.port))
+        self.server_socket.listen(4)
+        self.server_socket.settimeout(1.0)
+        logging.info(f"Server started on {self.host}:{self.port}")
 
-        elif action == ClientPacketType.PICKUP_ITEM:
-            player_id = int(parts[1])
-            object_id = int(parts[2])
+        try:
+            while self.running:
+                result = self.accept_connection()
+                if result:
+                    client_socket, address = result
+                    self.client_list.append(client_socket)
+                    self.user_count += 1
+                    client_socket.send(str(self.user_count).encode())
 
-            if player_id in players and object_id in objects:
-                obj = objects[object_id]
-                if obj.held_by is None:  # Ensure it's not already picked up
-                    obj.held_by = player_id
-                    players[player_id].inventory.append(object_id)
+                    threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+        except KeyboardInterrupt:
+            logging.info("Server interrupt received.")
+        finally:
+            self.shutdown()
 
-                    # Notify all clients
-                    update_msg = ClientPacketMaker(ServerPacketType.PICKUP_ITEM, player_id, object_id)
-                    for socket in client_list:
-                        socket.send(update_msg.encode())
+    def shutdown(self):
+        logging.info("Shutting down server.")
+        self.running = False
+        for client in self.client_list:
+            client.close()
+        self.server_socket.close()
 
-        elif action == ClientPacketType.DROP_ITEM:
-            player_id = int(parts[1])
-            object_id = int(parts[2])
-
-            if player_id in players and object_id in objects:
-                obj = objects[object_id]
-                if obj.held_by == player_id:
-                    obj.held_by = None
-                    players[player_id].inventory.remove(object_id)
-
-                    # Notify all clients
-                    update_msg = ClientPacketMaker(ServerPacketType.DROP_ITEM, player_id, object_id, x=players[player_id].x, y=players[player_id].y)
-                    for socket in client_list:
-                        socket.send(update_msg.encode())
-
-        else:
-            print(f"Unknown packet type: {action}")
-        
-def start_server():
-    global user_count
-    host = socket.gethostname()
-    port = 53333
-
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((host, port))
-    server_socket.listen(4)
-
-    while True:
-        client_socket, address = server_socket.accept()
-
-        print("Client address: " + str(address))
-        client_list.append(client_socket)
-        client_socket.send(str(user_count).encode())
-        user_count += 1
-        client_thread = threading.Thread(target=new_client, daemon=True, args=(client_socket,address))
-        client_thread.start()
