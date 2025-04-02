@@ -103,6 +103,7 @@ To run the server standalone currently just after installing all of the packages
 
 
 #### Client 
+run python (or python3 on mac) startclient.py --host <server_address> to connect to the server.
   To connect from a client that's on the same wifi, find the server's local IP address and use that as the host.
 
   To find the local IP address of the server, run `ipconfig` on Windows or `ifconfig` on Linux/Mac.
