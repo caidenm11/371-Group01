@@ -19,15 +19,15 @@ class ServerPacketType(IntEnum):
     DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
     SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>
     DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN_ITEM:<Object ID>
-    SPAWN_STAND = 7 # ServerPacketType.SPAWN_STAND:<Player ID>:<Stand ID>:<x>:<y>
+    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
 
 
-def ServerPacketMaker(action, player_id=None, stand_id=None, object_id=None, keys=None, state=None):
+def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None):
     packet = [str(action)]
     if player_id is not None:
         packet.append(str(player_id))
-    if stand_id is not None:
-        packet.append(str(stand_id))
+    if chest_id is not None:
+        packet.append(str(chest_id))
     if object_id is not None:
         packet.append(str(object_id))
     if keys is not None:

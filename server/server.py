@@ -16,7 +16,7 @@ class Server:
         self.client_list = []
         self.players = {}
         self.objects = {}
-        self.stands = {}
+        self.chests = {}
         self.next_object_id = 100
         self.running = True
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
