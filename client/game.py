@@ -5,6 +5,7 @@ import client.client as client_var
 
 players = {}
 objects = {}
+stands = {}
 
 
 class Player:
@@ -25,6 +26,16 @@ class GameObject:
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
+
+class ArmorStand:
+    def __init__(self, object_id, x, y, color="yellow"):  # Placeholder for object visuals
+        self.id = object_id
+        self.pos = pygame.Vector2(x, y)
+        self.color = color
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
+
 
 
 def start_game(host="0.0.0.0", port=53333):

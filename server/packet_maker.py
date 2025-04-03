@@ -14,14 +14,17 @@ class ServerPacketType(IntEnum):
     DROP_ITEM = 4
     SPAWN_ITEM = 5
     DESPAWN_ITEM = 6
+    SPAWN_STAND = 7 # ServerPacketType.SPAWN_STAND:<Player ID>:<Stand ID>:<x>:<y>
 
 
 class PacketMaker:
     @staticmethod
-    def make(action, player_id=None, object_id=None, x=None, y=None, state=None):
+    def make(action, player_id=None, stand_id=None, object_id=None, x=None, y=None, state=None):
         packet = [str(action)]
         if player_id is not None:
             packet.append(str(player_id))
+        if stand_id is not None:
+            packet.append(str(stand_id))
         if object_id is not None:
             packet.append(str(object_id))
         if x is not None and y is not None:

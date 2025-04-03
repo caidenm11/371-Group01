@@ -16,6 +16,7 @@ class Server:
         self.client_list = []
         self.players = {}
         self.objects = {}
+        self.stands = {}
         self.next_object_id = 100
         self.running = True
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,6 +46,8 @@ class Server:
 
         if action == ClientPacketType.MOVE_PLAYER:
             player_id, keys = int(parts[1]), parts[2]
+            if player_id not in self.players:
+                self.players[player_id] = Player(player_id)
             player = self.players.get(player_id)
             if player:
                 player.move(keys)
@@ -74,8 +77,8 @@ class Server:
                 if result:
                     client_socket, address = result
                     self.client_list.append(client_socket)
-                    self.user_count += 1
                     client_socket.send(str(self.user_count).encode())
+                    self.user_count += 1
 
                     threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
         except KeyboardInterrupt:
