@@ -5,7 +5,7 @@ import client.client as client_var
 
 players = {}
 objects = {}
-stands = {}
+chests = {}
 
 
 class Player:
