@@ -27,7 +27,7 @@ class GameObject:
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
-class ArmorStand:
+class Chest:
     def __init__(self, object_id, x, y, color="yellow"):  # Placeholder for object visuals
         self.id = object_id
         self.pos = pygame.Vector2(x, y)
