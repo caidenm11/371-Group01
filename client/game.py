@@ -19,9 +19,10 @@ class Player:
 
 
 class GameObject:
-    def __init__(self, object_id, x, y, color="blue"):  # Placeholder for object visuals
+    def __init__(self, object_id, x, y, armor_type, color="blue"):  # Placeholder for object visuals
         self.id = object_id
         self.pos = pygame.Vector2(x, y)
+        self.armor_type = armor_type
         self.color = color
 
     def draw(self, screen):

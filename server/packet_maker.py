@@ -19,7 +19,7 @@ class ServerPacketType(IntEnum):
 
 class PacketMaker:
     @staticmethod
-    def make(action, player_id=None, chest_id=None, object_id=None, x=None, y=None, state=None):
+    def make(action, player_id=None, chest_id=None, object_id=None, x=None, y=None, state=None, armor_type=None):
         packet = [str(action)]
         if player_id is not None:
             packet.append(str(player_id))
@@ -32,4 +32,6 @@ class PacketMaker:
             packet.append(str(y))
         if state is not None:
             packet.append(str(state))
+        if armor_type is not None:
+            packet.append(str(armor_type))
         return ":".join(packet) + "\n"

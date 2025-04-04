@@ -17,12 +17,12 @@ class ServerPacketType(IntEnum):
     SPAWN_PLAYER = 2  # ServerPacketType.SPAWN_PLAYER:<Player ID>:<x>:<y>
     PICKUP_ITEM = 3  # ServerPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
     DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
-    SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>
+    SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>:<armor type>
     DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN_ITEM:<Object ID>
     SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
 
 
-def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None):
+def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None, armor_type=None):
     packet = [str(action)]
     if player_id is not None:
         packet.append(str(player_id))
@@ -34,6 +34,8 @@ def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, key
         packet.append(str(keys))
     if state is not None:
         packet.append(str(state))
+    if armor_type is not None:
+        packet.append(str(armor_type))
     return ":".join(packet) + "\n"  # Append delimiter for TCP streaming
 
 
@@ -107,10 +109,11 @@ def process_packet(data):
         object_id = int(parts[1])
         x = float(parts[2])
         y = float(parts[3])
+        armor_type = int(parts[4])
 
         # Add the new object to the dictionary
         if object_id not in game_var.objects:
-            game_var.objects[object_id] = game_var.GameObject(object_id, x, y)
+            game_var.objects[object_id] = game_var.GameObject(object_id, x, y, armor_type)
         print(f"Spawned Item {object_id} at ({x}, {y})")
 
     else:
