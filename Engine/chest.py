@@ -4,3 +4,4 @@ class Chest:
         self.player_id = player_id
         self.x = x
         self.y = y
+        self.stored_items = {}
