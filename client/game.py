@@ -104,7 +104,7 @@ def start_game(host="0.0.0.0", port=53333):
             # check if player had collided with any game objects
             # if so, have the player pick it up
             for object in objects.values():
-                if object.held_by is None and player_rect.colliderect(object.rect):
+                if object.held_by is None and len(player.inventory) == 0 and player_rect.colliderect(object.rect):
                     print(f"Player Picked up: {object}") # for debugging
                     player.inventory.append(object)
                     print(player.inventory[0])
