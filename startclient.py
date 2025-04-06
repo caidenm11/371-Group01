@@ -4,7 +4,7 @@ from client.game import run_main_menu
 # Main entrypoint for the client application
 def main():
     parser = argparse.ArgumentParser(description="Start the client and connect to a server.")
-    parser.add_argument("--host", type=str, default="192.168.1.68",
+    parser.add_argument("--host", type=str, default="0.0.0.0",
                         help="IP address of the server (default: 0.0.0.0)")
 
     args = parser.parse_args()

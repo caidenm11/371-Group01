@@ -6,6 +6,7 @@ class ClientPacketType(IntEnum):
     PICKUP_ITEM = 2
     DROP_ITEM = 3
     REQUEST_START_GAME = 4  # so the player can start from the lobby.
+    CHEST_DROP = 5  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
 
 
 class ServerPacketType(IntEnum):
