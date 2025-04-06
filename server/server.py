@@ -1,6 +1,8 @@
 import socket
 import threading
 import logging
+import random
+import time
 from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
@@ -22,6 +24,8 @@ class Server:
         self.client_name_map = {}
         self.next_object_id = 100
         self.running = True
+        self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True)
+        self.object_spawn_thread.start()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def new_client(self, client_socket, addr):
@@ -117,6 +121,18 @@ class Server:
             except Exception as e:
                 logging.warning(f"Failed to send player list: {e}")
 
+        if action == ClientPacketType.PICKUP_ITEM:
+            player_id, object_id = int(parts[1]), parts[2]
+            update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
+            self.broadcast(update_msg)
+
+        # if action == ClientPacketType.SPAWN_ITEM:
+        #     player_id, object_id = int(parts[1]), parts[2]
+        #     object = self.objects.get(object_id)
+        #     if object:
+        #         update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id, x=player.x, y=player.y - 50)
+        #         self.broadcast(update_msg)
+
     def broadcast(self, message):
         # Broadcast a message to all clients
         for sock in self.client_list:
@@ -131,6 +147,34 @@ class Server:
             return client_socket, address
         except socket.timeout:
             return None
+        
+    def spawn_items_loop(self):
+        armor_types = [1, 2, 3, 4]  # helmet, chestplate, pants, boots
+        screen_width, screen_height = 1280, 720
+
+        while self.running:
+            object_id = self.next_object_id
+            self.next_object_id += 1
+
+            x = random.randint(0, screen_width - 40)
+            y = random.randint(0, screen_height - 40)
+            armor_type = random.choice(armor_types)
+
+            new_obj = GameObject(object_id, x, y, armor_type)
+            self.objects[object_id] = new_obj
+
+            packet = PacketMaker.make(
+                ServerPacketType.SPAWN_ITEM,
+                object_id=object_id,
+                x=x,y=y,
+                armor_type=armor_type
+            )
+
+            self.broadcast(packet)
+            logging.info(f"Spawned item {object_id} at ({x},{y})")
+
+            # random item spawns at random x,y every 5 seconds
+            time.sleep(5)
 
     def _connection_loop(self):
         try:

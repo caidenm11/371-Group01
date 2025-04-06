@@ -22,7 +22,7 @@ class ServerPacketType(IntEnum):
 class PacketMaker:
     @staticmethod
     def make(action, player_id=None, chest_id=None, object_id=None, x=None, y=None, state=None, armor_type=None):
-        packet = [str(action)]
+        packet = [str(action.value)] # used to be packet = [str(action)]
         if player_id is not None:
             packet.append(str(player_id))
         if chest_id is not None:
