@@ -59,9 +59,37 @@ class Server:
                 self.broadcast(update_msg)
 
         if action == ClientPacketType.PICKUP_ITEM:
-            player_id, object_id = int(parts[1]), parts[2]
+            player_id, object_id = int(parts[1]),int( parts[2])
             update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
             self.broadcast(update_msg)
+
+        if action == ClientPacketType.DROP_ITEM:
+            player_id, object_id = int(parts[1]), int(parts[2])
+            player = self.players.get(player_id)
+            obj = self.objects.get(object_id)
+
+            if player and obj:
+                # Drop the object in front of the player
+                obj.x = player.x 
+                obj.y = player.y - 50
+                obj.held_by = None
+
+                update_msg = PacketMaker.make(
+                    ServerPacketType.DROP_ITEM,
+                    player_id=player_id,
+                    object_id=object_id,
+                    x=obj.x,
+                    y=obj.y
+                )
+                self.broadcast(update_msg)
+
+        # if action == ClientPacketType.DESPAWN_ITEM:
+        #     object_id = int(parts[1])
+        #     if object_id in self.objects:
+        #         del self.objects[object_id]
+        #         update_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id)
+        #         self.broadcast(update_msg)
+
 
         # if action == ClientPacketType.SPAWN_ITEM:
         #     player_id, object_id = int(parts[1]), parts[2]

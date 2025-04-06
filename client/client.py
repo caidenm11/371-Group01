@@ -9,6 +9,7 @@ class ClientPacketType(IntEnum):
     MOVE_PLAYER = 1  # ClientPacketType.MOVE:<Player ID>:<Keys>
     PICKUP_ITEM = 2  # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
     DROP_ITEM = 3  # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
+    CHEST_DROP = 4  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
 
 
 # Actions the client receives from server
@@ -128,6 +129,34 @@ def process_packet(data):
         # held_object.rect.topleft.x = player.x
         # held_object.rect.topleft.y = player.y - 50
 
+    elif action == ServerPacketType.SPAWN_CHEST:
+        player_id = int(parts[1])
+        chest_id = int(parts[2])
+        x = float(parts[3])
+        y = float(parts[4])
+
+        # If the chest doesn't exist yet, add it to the dictionary
+        if chest_id not in game_var.chests:
+            game_var.chests[chest_id] = game_var.Chest(chest_id, x, y)
+        print(f"Spawned Chest {chest_id} at ({x}, {y})")
+
+    elif action == ServerPacketType.DROP_ITEM:
+        player_id = int(parts[1])
+        object_id = float(parts[2])
+        x = float(parts[3])
+        y = float(parts[4])
+
+        # Update the object's position
+        if object_id in game_var.objects:
+            game_var.objects[object_id].pos.x = x
+            game_var.objects[object_id].pos.y = y
+            print(f"Dropped Item {object_id} at ({x}, {y})")
+    elif action == ServerPacketType.DESPAWN_ITEM:
+        object_id = int(parts[1])
+        if object_id in game_var.objects:
+            del game_var.objects[object_id]
+            print(f"Item {object_id} despawned")
+
 
     else:
         print(f"Unknown packet type: {action}")
@@ -149,15 +178,36 @@ def start_client(host="0.0.0.0", port=53333):
 def send_key(data):
     global client_socket
     global player_id
-    data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
-    message = data.encode("utf-8")
-    client_socket.send(message)
+    # data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
+    # message = data.encode("utf-8")
+    # client_socket.send(message)
+    if client_socket:
+        try:
+            data = ServerPacketMaker(ClientPacketType.MOVE_PLAYER, player_id, keys=data)
+            message = data.encode("utf-8")
+            client_socket.send(message)
+        except OSError as e:
+            print(f"[ERROR] Failed to send movement: {e}")
 
 def send_object_pickup(data):
     data = ServerPacketMaker(ServerPacketType.PICKUP_ITEM, player_id, object_id=data)
     message = data.encode("utf-8")
     client_socket.send(message)
 
+def send_object_drop(data):
+    packet = ServerPacketMaker(ClientPacketType.DROP_ITEM, player_id, object_id=data)
+    message = packet.encode("utf-8")
+    client_socket.send(message)
+
+def send_chest_drop(chest_id, object_id):
+    packet = ServerPacketMaker(ClientPacketType.CHEST_DROP, player_id=player_id, chest_id=chest_id, object_id=object_id)
+    message = packet.encode("utf-8")
+    client_socket.send(message)
+
+def send_player_despawn(data):
+    packet = ServerPacketMaker(ClientPacketType.DROP_ITEM, player_id, object_id=data)
+    message = packet.encode("utf-8")
+    client_socket.send(message)
 
 def close_client():
     global client_socket
