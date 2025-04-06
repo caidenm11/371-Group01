@@ -2,10 +2,13 @@
 import pygame
 from client.client import start_client, send_key, close_client
 import client.client as client_var
+from client.mainmenu import main_menu
 
 players = {}
 objects = {}
 chests = {}
+SCREEN_WIDTH = 1512
+SCREEN_HEIGHT = 982
 
 
 class Player:
@@ -28,6 +31,7 @@ class GameObject:
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
+
 class Chest:
     def __init__(self, object_id, x, y, color="yellow"):  # Placeholder for object visuals
         self.id = object_id
@@ -38,15 +42,19 @@ class Chest:
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
 
-
 def start_game(host="0.0.0.0", port=53333):
     # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
 
     # pygame setup
     global players
     global objects
-    pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    # pygame.init()
+    # screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    # Start the main menu
+    main_menu()
+    # Fill the screen black to start this screen
+
     clock = pygame.time.Clock()
 
     # Try to connect
@@ -54,11 +62,10 @@ def start_game(host="0.0.0.0", port=53333):
         start_client(host)
     except Exception as e:
         print(f"❌ Failed to connect to server at {host}: {e}")
-        pygame.quit()
+        # pygame.quit()
         return
     running = True
     dt = 0
-
 
     players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
 
