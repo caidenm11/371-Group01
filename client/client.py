@@ -23,7 +23,7 @@ class ServerPacketType(IntEnum):
 
 
 def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None, armor_type=None):
-    packet = [str(action)]
+    packet = [str(action.value)]
     if player_id is not None:
         packet.append(str(player_id))
     if chest_id is not None:
@@ -87,8 +87,9 @@ def process_packet(data):
 
         # Ensure valid player ID exists in the dictionary
         if player_id in game_var.players:
-            game_var.players[player_id].pos.x = x
-            game_var.players[player_id].pos.y = y
+            player = game_var.players[player_id]
+            player.pos.x = x
+            player.pos.y = y
             print(f"Player {player_id} moved to ({x}, {y})")
 
     elif action == ServerPacketType.SPAWN_PLAYER:
@@ -116,6 +117,18 @@ def process_packet(data):
             game_var.objects[object_id] = game_var.GameObject(object_id, x, y, armor_type)
         print(f"Spawned Item {object_id} at ({x}, {y})")
 
+    elif action == ServerPacketType.PICKUP_ITEM:
+        player_id = int(parts[1])
+        object_id = float(parts[2])
+        player = game_var.players[player_id]
+        held_object = game_var.objects[object_id]
+
+        player.inventory[0] = held_object
+        held_object.held_by = player_id
+        # held_object.rect.topleft.x = player.x
+        # held_object.rect.topleft.y = player.y - 50
+
+
     else:
         print(f"Unknown packet type: {action}")
 
@@ -133,12 +146,15 @@ def start_client(host="0.0.0.0", port=53333):
     client_thread.start()
 
 
-
-
 def send_key(data):
     global client_socket
     global player_id
     data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
+    message = data.encode("utf-8")
+    client_socket.send(message)
+
+def send_object_pickup(data):
+    data = ServerPacketMaker(ServerPacketType.PICKUP_ITEM, player_id, object_id=data)
     message = data.encode("utf-8")
     client_socket.send(message)
 
