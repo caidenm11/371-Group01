@@ -6,7 +6,7 @@ def main():
     player_name = "Player1"
 
     # Initialize the game lobby
-    lobby = game_lobby.GameLobby(player_name)
+    lobby = game_lobby.GameLobby('Caiden2','0.0.0.0', 53334)  # Replace with actual server IP and port
 
     # Run the lobby
     lobby.run()
