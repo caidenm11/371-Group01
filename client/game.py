@@ -116,8 +116,13 @@ def start_game(host="0.0.0.0", port=53333):
         if movement:  # Only send if there's a movement command
             send_key(movement)
 
-        # --- Check if dropped items land in a chest ---
+        # Check if dropped items land in a chest 
         for chest in chests.values():
+            
+            # Check if the chest is owned by the player
+            if chest.id != int(client_var.player_id):
+                continue  # Skip chests that don't belong to this player
+
             for obj in list(objects.values()):  # use list to avoid dict size change error
                 if obj.held_by is None and chest.rect.colliderect(obj.rect):
                     if obj.id not in chest.stored_items:
@@ -127,6 +132,9 @@ def start_game(host="0.0.0.0", port=53333):
 
                         # Remove object from world
                         del objects[obj.id]
+
+                        #Print the current objects the player has
+                        print(f"Player {chest.id} has the following items in the chest: {list(chest.stored_items.values())}")
 
                         # # (Optional) Tell the server to despawn the item
                         # despawn_packet = ServerPacketMaker(ServerPacketType.DESPAWN_ITEM, object_id=obj.id)
@@ -147,7 +155,7 @@ def start_game(host="0.0.0.0", port=53333):
             # check if player had collided with any game objects
             # if so, have the player pick it up
             for object in objects.values():
-                if object.held_by is None and player_rect.colliderect(object.rect):
+                if object.held_by is None and len(player.inventory) == 0 and player_rect.colliderect(object.rect):
                     print(f"Player Picked up: {object}") # for debugging
                     player.inventory.append(object)
                     print(player.inventory[0])
