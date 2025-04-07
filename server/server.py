@@ -5,6 +5,8 @@ from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
 from Engine.gameobject import GameObject
+from server.broadcast_announcer import start_broadcast, get_local_ip
+
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
 
@@ -93,6 +95,10 @@ class Server:
         self.server_socket.listen(4)
         self.server_socket.settimeout(1.0)
         logging.info(f"Server started on {self.host}:{self.port}")
+
+        # ✅ Start LAN broadcast here
+        display_ip = get_local_ip()
+        start_broadcast(display_ip, self.port, len(self.players), 8, "LAN Party")
 
         # Start the connection loop in a separate thread
         threading.Thread(target=self._connection_loop, daemon=True).start()

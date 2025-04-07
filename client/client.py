@@ -19,7 +19,7 @@ class ServerPacketType(IntEnum):
     DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
     SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>:<armor type>
     DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN_ITEM:<Object ID>
-    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
+    SPAWN_CHEST = 7  # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
 
 
 def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None, armor_type=None):
@@ -131,8 +131,6 @@ def start_client(host="0.0.0.0", port=53333):
     # print(client_id)
     client_thread = threading.Thread(target=server_listener, daemon=True, args=(client_socket, None))
     client_thread.start()
-
-
 
 
 def send_key(data):

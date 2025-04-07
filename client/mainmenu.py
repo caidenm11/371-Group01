@@ -48,7 +48,7 @@ def main_menu():
     exit_button = Button(None, (SCREEN_WIDTH // 2, 640), "Exit Game", font, FONT_COLOR, HOVER_COLOR)
     buttons = [start_button, connect_button, exit_button]
 
-    splash = small_font.render(SPLASH_TEXT, True, "yellow")
+    splash = small_font.render(SPLASH_TEXT, True, "yellow") #title
     server_started = False
 
     while True:

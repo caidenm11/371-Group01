@@ -42,7 +42,161 @@ class Chest:
         pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
 
 
+# Example file showing a circle moving on screen
+import pygame
+from client.client import start_client, send_key, close_client
+import client.client as client_var
+from client.mainmenu import main_menu
+
+players = {}
+objects = {}
+chests = {}
+SCREEN_WIDTH = 1512
+SCREEN_HEIGHT = 982
+
+
+class Player:
+    def __init__(self, player_id, x, y, color="red"):
+        self.id = player_id
+        self.pos = pygame.Vector2(x, y)
+        self.color = color  # Placeholder for unique player colors
+
+    def draw(self, screen):
+        pygame.draw.circle(screen, self.color, self.pos, 40)
+
+
+class GameObject:
+    def __init__(self, object_id, x, y, armor_type, color="blue"):  # Placeholder for object visuals
+        self.id = object_id
+        self.pos = pygame.Vector2(x, y)
+        self.armor_type = armor_type
+        self.color = color
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
+
+
+class Chest:
+    def __init__(self, object_id, x, y, color="yellow"):  # Placeholder for object visuals
+        self.id = object_id
+        self.pos = pygame.Vector2(x, y)
+        self.color = color
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.pos.x - 20, self.pos.y - 20, 40, 40))  # Draw square object
+
+
+def run_main_menu_screen(host="0.0.0.0", port=53333):
+    # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
+
+    # pygame setup
+    global players
+    global objects
+    # pygame.init()
+    # screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    # Start the main menu
+    main_menu()
+    # Fill the screen black to start this screen
+
+    clock = pygame.time.Clock()
+
+    # Try to connect
+    # try:
+    #     start_client(host)
+    # except Exception as e:
+    #     print(f"❌ Failed to connect to server at {host}: {e}")
+    #     # pygame.quit()
+    #     return
+    # running = True
+    # dt = 0
+    #
+    # players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
+    #
+    # while running:
+    #     # poll for events
+    #     # pygame.QUIT event means the user clicked X to close your window
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             running = False
+    #
+    #     # fill the screen with a color to wipe away anything from last frame
+    #     screen.fill("purple")
+    #
+    #     for player in players.values():
+    #         player.draw(screen)
+    #
+    #     keys = pygame.key.get_pressed()
+    #     movement = ""
+    #
+    #     if keys[pygame.K_w]:
+    #         movement += "w"
+    #     if keys[pygame.K_s]:
+    #         movement += "s"
+    #     if keys[pygame.K_a]:
+    #         movement += "a"
+    #     if keys[pygame.K_d]:
+    #         movement += "d"
+    #
+    #     if movement:  # Only send if there's a movement command
+    #         send_key(movement)
+    #
+    #     # flip() the display to put your work on screen
+    #     pygame.display.flip()
+    #
+    #     # limits FPS to 60
+    #     # dt is delta time in seconds since last frame, used for framerate-
+    #     # independent physics.
+    #     dt = clock.tick(60) / 1000
+
+    # close_client()
+    # pygame.quit()
+
+
 def start_game(host="0.0.0.0", port=53333):
+    global players, objects
+
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("VocaCraft")
+
+    clock = pygame.time.Clock()
+
+    try:
+        start_client(host, port)
+    except Exception as e:
+        print(f"❌ Failed to connect to server at {host}:{port}: {e}")
+        return
+
+    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        keys = pygame.key.get_pressed()
+        movement = ""
+        if keys[pygame.K_w]: movement += "w"
+        if keys[pygame.K_s]: movement += "s"
+        if keys[pygame.K_a]: movement += "a"
+        if keys[pygame.K_d]: movement += "d"
+        if movement:
+            send_key(movement)
+
+        screen.fill("purple")
+        for player in players.values():
+            player.draw(screen)
+
+        pygame.display.flip()
+        clock.tick(60)
+
+    close_client()
+    pygame.quit()
+
+
+def run_main_menu(host="0.0.0.0", port=53333):
     # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
 
     # pygame setup

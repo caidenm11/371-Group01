@@ -1,5 +1,5 @@
 import argparse
-from client.game import start_game
+from client.game import run_main_menu
 
 
 def main():
@@ -8,7 +8,7 @@ def main():
                         help="IP address of the server (default: 0.0.0.0)")
 
     args = parser.parse_args()
-    start_game(host=args.host)
+    run_main_menu(host=args.host)
 
 
 if __name__ == "__main__":
