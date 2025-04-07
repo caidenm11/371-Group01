@@ -5,8 +5,11 @@ import time
 from client.button import Button
 from client.game import run_main_menu, start_game
 from server.broadcast_discoverer import LANGameDiscovery
+# By far needs the most refactoring, but it works for now ...
 
-# --- Config ---
+
+
+# Settings
 SCREEN_WIDTH = 1512
 SCREEN_HEIGHT = 982
 BUTTON_WIDTH = 400
@@ -28,6 +31,11 @@ discovered_servers = []
 scroll_offset = 0
 max_visible = 6
 selected_index = None
+
+
+def multiplayer_menu():
+    # yeah this is a mess but it runs main, should probably refactor that...
+    main()
 
 
 def validate_ip(ip):

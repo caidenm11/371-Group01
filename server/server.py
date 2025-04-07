@@ -103,42 +103,9 @@ class Server:
         # Start the connection loop in a separate thread
         threading.Thread(target=self._connection_loop, daemon=True).start()
 
-
-    # def start(self):
-    #     while True:
-    #         try:
-    #             self.server_socket.bind((self.host, self.port))
-    #             break
-    #         except OSError as e:
-    #             if e.errno == 48:  # Address already in use (macOS/Linux)
-    #                 logging.warning(f"Port {self.port} in use. Trying next port...")
-    #                 self.port += 1
-    #             else:
-    #                 raise
-    #
-    #     self.server_socket.listen(4)
-    #     self.server_socket.settimeout(1.0)
-    #     logging.info(f"Server started on {self.host}:{self.port}")
-    #
-    #     try:
-    #         while self.running:
-    #             result = self.accept_connection()
-    #             if result:
-    #                 client_socket, address = result
-    #                 self.client_list.append(client_socket)
-    #                 client_socket.send(str(self.user_count).encode())
-    #                 self.user_count += 1
-    #
-    #                 threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
-    #     except KeyboardInterrupt:
-    #         logging.info("Server interrupt received.")
-    #     finally:
-    #         self.shutdown()
-
     def shutdown(self):
         logging.info("Shutting down server.")
         self.running = False
         for client in self.client_list:
             client.close()
         self.server_socket.close()
-

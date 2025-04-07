@@ -6,7 +6,7 @@ import pygame
 from client.button import Button
 from server.server_ui import server_ui
 
-# --- Constants ---
+# Essentially the settings, could be broken into it's own file / moved to the init... made more object oriented.
 SCREEN_WIDTH = 1512
 SCREEN_HEIGHT = 982
 BUTTON_WIDTH = 420
@@ -76,7 +76,7 @@ def main_menu():
                 button.update(screen)
 
         pygame.display.flip()
-
+        # Maybe find a better way to do this, in each menu screen this just loops over and looks for an action and runs what it does off that action...
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -85,6 +85,10 @@ def main_menu():
                 if start_button.checkForInput(event.pos) and not server_started:
                     run_server()
                     server_started = True
+                elif connect_button.checkForInput(event.pos):
+                    # Run the multiplayer menu
+                    from client.multiplayermenu import multiplayer_menu
+                    multiplayer_menu()
                 elif exit_button.checkForInput(event.pos):
                     pygame.quit()
                     sys.exit()
