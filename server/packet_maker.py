@@ -6,6 +6,7 @@ class ClientPacketType(IntEnum):
     PICKUP_ITEM = 2
     DROP_ITEM = 3
     CHEST_DROP = 4  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
+    DESPAWN_ITEM = 5 
 
 
 class ServerPacketType(IntEnum):

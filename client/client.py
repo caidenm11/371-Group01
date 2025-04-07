@@ -10,6 +10,7 @@ class ClientPacketType(IntEnum):
     PICKUP_ITEM = 2  # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
     DROP_ITEM = 3  # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
     CHEST_DROP = 4  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
+    DESPAWN_ITEM = 5 
 
 
 # Actions the client receives from server
@@ -204,8 +205,8 @@ def send_chest_drop(chest_id, object_id):
     message = packet.encode("utf-8")
     client_socket.send(message)
 
-def send_player_despawn(data):
-    packet = ServerPacketMaker(ClientPacketType.DROP_ITEM, player_id, object_id=data)
+def send_item_despawn(object_id):
+    packet = ServerPacketMaker(ClientPacketType.DESPAWN_ITEM, player_id=player_id, object_id=object_id)
     message = packet.encode("utf-8")
     client_socket.send(message)
 
