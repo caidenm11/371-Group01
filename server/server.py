@@ -39,7 +39,8 @@ class Server:
             logging.error(f"Client error {addr}: {e}")
         finally:
             client_socket.close()
-            self.client_list.remove(client_socket)
+            if client_socket in self.client_list:
+                self.client_list.remove(client_socket)
             logging.info(f"Client disconnected: {addr}")
 
     def process_packet(self, packet):
@@ -58,7 +59,10 @@ class Server:
 
     def broadcast(self, message):
         for sock in self.client_list:
-            sock.send(message.encode())
+            try:
+                sock.send(message.encode())
+            except:
+                pass  # skip clients that have disconnected unexpectedly
 
     def accept_connection(self):
         try:
@@ -83,7 +87,6 @@ class Server:
             self.shutdown()
 
     def start(self):
-        # Try ports until one is available
         while True:
             try:
                 self.server_socket.bind((self.host, self.port))
@@ -96,11 +99,10 @@ class Server:
         self.server_socket.settimeout(1.0)
         logging.info(f"Server started on {self.host}:{self.port}")
 
-        # ✅ Start LAN broadcast here
+        # Optional LAN broadcast
         display_ip = get_local_ip()
         start_broadcast(display_ip, self.port, len(self.players), 8, "LAN Party")
 
-        # Start the connection loop in a separate thread
         threading.Thread(target=self._connection_loop, daemon=True).start()
 
     def shutdown(self):
