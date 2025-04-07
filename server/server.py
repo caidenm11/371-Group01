@@ -146,13 +146,13 @@ class Server:
                 )
                 self.broadcast(update_msg)
 
-        # if action == ClientPacketType.DESPAWN_ITEM:
-        #     object_id = int(parts[1])
-        #     if object_id in self.objects:
-        #         del self.objects[object_id]
-        #         update_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id)
-        #         self.broadcast(update_msg)
-
+        if action == ClientPacketType.DESPAWN_ITEM:
+            object_id = int(parts[2])  # or adjust if only 2 parts
+            if object_id in self.objects:
+                del self.objects[object_id]
+                print(f"Server: Despawning item {object_id}")
+                update_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
+                self.broadcast(update_msg)
 
         # if action == ClientPacketType.SPAWN_ITEM:
         #     player_id, object_id = int(parts[1]), parts[2]

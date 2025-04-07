@@ -1,7 +1,7 @@
 # Example file showing a circle moving on screen
 import pygame
 import random
-from client.client import start_client, close_client, send_key, send_object_pickup, send_object_drop, send_chest_drop
+from client.client import start_client, close_client, send_key, send_object_pickup, send_object_drop, send_chest_drop, send_item_despawn
 import client.client as client_var
 from client.mainmenu import main_menu
 
@@ -177,7 +177,7 @@ def run_main_menu(host="0.0.0.0", port=53333):
 
         # Check if dropped items land in a chest 
         for chest in chests.values():
-            
+
             # Check if the chest is owned by the player
             if chest.id != int(client_var.player_id):
                 continue  # Skip chests that don't belong to this player
@@ -195,11 +195,8 @@ def run_main_menu(host="0.0.0.0", port=53333):
                         #Print the current objects the player has
                         print(f"Player {chest.id} has the following items in the chest: {list(chest.stored_items.values())}")
 
-                        # # (Optional) Tell the server to despawn the item
-                        # despawn_packet = ServerPacketMaker(ServerPacketType.DESPAWN_ITEM, object_id=obj.id)
-                        # client_var.client_socket.send(despawn_packet.encode())
-
                         send_chest_drop(chest.id, obj.id) 
+                        send_item_despawn(obj.id)
 
                         # (Optional) Check for win condition:
                         collected_types = {o.armor_type for o in chest.stored_items.values()}
