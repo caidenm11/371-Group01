@@ -74,9 +74,9 @@ def start_game(host="0.0.0.0", port=53333):
     dt = 0
 
 
-    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)} 
+    # players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)} 
     # putting the chests in the 4 corners of the screen
-    chests = {i: Chest(i, 0 if i % 2 == 0 else screen.get_width() - 100, 0 if i < 2 else screen.get_height() - 100) for i in range(4)}
+    # chests = {i: Chest(i, 0 if i % 2 == 0 else screen.get_width() - 100, 0 if i < 2 else screen.get_height() - 100) for i in range(4)}
 
     while running:
         # poll for events
@@ -105,7 +105,7 @@ def start_game(host="0.0.0.0", port=53333):
             movement += "a"
         if keys[pygame.K_d]:
             movement += "d"
-        if keys[pygame.K_q]:
+        if keys[pygame.K_j]:
             local_player = players.get(int(client_var.player_id))
             if local_player and len(local_player.inventory) > 0:
                 dropped_item = local_player.inventory.pop(0)

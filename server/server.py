@@ -7,6 +7,7 @@ from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
 from Engine.gameobject import GameObject
+from Engine.chest import Chest
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
 
@@ -58,12 +59,12 @@ class Server:
                 update_msg = PacketMaker.make(ServerPacketType.MOVE_PLAYER, player_id, x=player.x, y=player.y)
                 self.broadcast(update_msg)
 
-        if action == ClientPacketType.PICKUP_ITEM:
+        elif action == ClientPacketType.PICKUP_ITEM:
             player_id, object_id = int(parts[1]),int( parts[2])
             update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
             self.broadcast(update_msg)
 
-        if action == ClientPacketType.DROP_ITEM:
+        elif action == ClientPacketType.DROP_ITEM:
             player_id, object_id = int(parts[1]), int(parts[2])
             player = self.players.get(player_id)
             obj = self.objects.get(object_id)
@@ -83,7 +84,7 @@ class Server:
                 )
                 self.broadcast(update_msg)
 
-        if action == ClientPacketType.DESPAWN_ITEM:
+        elif action == ClientPacketType.DESPAWN_ITEM:
             object_id = int(parts[2])  # or adjust if only 2 parts
             if object_id in self.objects:
                 del self.objects[object_id]
@@ -137,6 +138,27 @@ class Server:
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)
 
+    def chest_init(self, chest_id):
+        x = 0 if chest_id % 2 == 0 else 1280 - 100
+        y = 0 if chest_id < 2 else 720 - 100
+        self.chests[chest_id] = Chest(chest_id=chest_id, player_id=chest_id, x=x, y=y)
+    
+    def player_init(self, player_id):
+        x = 200 if player_id % 2 == 0 else 1280 - 200
+        y = 200 if player_id < 2 else 720 - 200
+        self.players[player_id] = Player(player_id=player_id, x=x, y=y)
+
+    def broadcast_chests(self, count):
+        for i in range(count):
+            packet = PacketMaker.make(ServerPacketType.SPAWN_CHEST, player_id=i, chest_id=i, x=self.chests[i].x, y=self.chests[i].y)
+            self.broadcast(packet)
+
+    def broadcast_players(self, count):
+        for i in range(count):
+            packet = PacketMaker.make(ServerPacketType.SPAWN_PLAYER, player_id=i, x=self.players[i].x, y=self.players[i].y)
+            self.broadcast(packet)
+
+
     def start(self):
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(4)
@@ -150,7 +172,14 @@ class Server:
                     client_socket, address = result
                     self.client_list.append(client_socket)
                     client_socket.send(str(self.user_count).encode())
+
+                    self.player_init(self.user_count)
+                    self.chest_init(self.user_count)
+
                     self.user_count += 1
+
+                    self.broadcast_players(self.user_count)
+                    self.broadcast_chests(self.user_count)
 
                     threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
         except KeyboardInterrupt:

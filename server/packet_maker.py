@@ -16,7 +16,7 @@ class ServerPacketType(IntEnum):
     DROP_ITEM = 4
     SPAWN_ITEM = 5
     DESPAWN_ITEM = 6
-    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_STAND:<Player ID>:<Stand ID>:<x>:<y>
+    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
 
 
 class PacketMaker:
