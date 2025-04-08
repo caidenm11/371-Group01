@@ -4,7 +4,6 @@ import logging
 from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
-from Engine.gameobject import GameObject
 from server.broadcast_announcer import start_broadcast, get_local_ip
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
@@ -86,6 +85,7 @@ class Server:
             self.broadcast(start_msg)
 
     def heartbeat_loop(self, interval=5):
+        # This function sends a heartbeat message to all clients to check if they are still connected
         while self.running:
             to_remove = []
             for sock in self.client_list[:]:
@@ -108,6 +108,7 @@ class Server:
             threading.Event().wait(interval)
 
     def broadcast_player_list(self):
+        # Broadcast the list of players to all clients
         message = "__players__" + ",".join(self.player_names)
         logging.info(f"[Broadcasting] Player list: {message}")
         for sock in self.client_list:
@@ -117,6 +118,7 @@ class Server:
                 logging.warning(f"Failed to send player list: {e}")
 
     def broadcast(self, message):
+        # Broadcast a message to all clients
         for sock in self.client_list:
             try:
                 sock.send(message.encode())

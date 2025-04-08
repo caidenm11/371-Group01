@@ -5,6 +5,7 @@ from enum import IntEnum
 
 from Engine.player import Player
 
+# Deprecated:
 
 # Actions that server receives from clients
 class ClientPacketType(IntEnum):

@@ -3,8 +3,10 @@ import sys
 import socket
 import time
 from client.button import Button
-from client.game import run_main_menu, start_game
+from client.game import run_main_menu
+from client.game_lobby import GameLobby
 from server.broadcast_discoverer import LANGameDiscovery
+# from client.game_lobby import start_game
 from client.config import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FONT_COLOR, HOVER_COLOR,
     SERVER_LIST_BG, SERVER_LIST_HOVER, SERVER_LIST_SELECTED,
@@ -13,8 +15,10 @@ from client.config import (
 )
 from client.ui_utils import create_text_input, create_title
 
+
 # Still thinking this could be cleaned up more, the events are handled inside here, and we could probably clean that up quite a bit. Not very object oriented in that way.
 class ServerBrowser:
+    # this is used for the multiplayer menu bits, including all buttons and logic etc.
     def __init__(self):
         pygame.init()
         pygame.font.init()
@@ -36,7 +40,7 @@ class ServerBrowser:
         self._create_buttons()
 
     def _create_buttons(self):
-        """Create all buttons for the server browser"""
+        # Create all buttons for the server browser
         self.add_button = Button(None, (1300, 150), "Add Server", self.font, FONT_COLOR, HOVER_COLOR)
         self.refresh_button = Button(None, (1300, 250), "Refresh", self.font, FONT_COLOR, HOVER_COLOR)
         self.connect_button = Button(None, (1300, 350), "Direct Connect", self.font, FONT_COLOR, HOVER_COLOR)
@@ -59,7 +63,11 @@ class ServerBrowser:
     def try_connect(self, ip_text, port_text):
         port_str = str(port_text)
         if self.validate_ip(ip_text) and port_str.isdigit():
-            start_game(ip_text, int(port_str))
+            # start_game(ip_text, int(port_str))
+            # Now it sends the player into the lobby instead of sending them into the game right away.
+            player_name = "Player" + str(int(time.time() * 1000))[-4:]
+            lobby = GameLobby(player_name, ip_text, int(port_str))
+            lobby.run()
             return True
         return False
 
@@ -109,7 +117,7 @@ class ServerBrowser:
 
             pygame.display.flip()
 
-            # Handle events
+            # Handle events -- want to clean up
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return None
@@ -184,7 +192,7 @@ class ServerBrowser:
             server["rect"] = rect
 
     def run(self):
-        """Main loop for the server browser"""
+        # Main loop for the server browser
         clock = pygame.time.Clock()
         running = True
 

@@ -5,8 +5,7 @@ from client.config import SCREEN_WIDTH, SCREEN_HEIGHT, create_font, NORMAL_FONT_
 
 
 class Screen(ABC):
-    """Base class for all screens in the game"""
-
+    # Base class for all screens in the game
     def __init__(self, background_path=None):
 
         if not pygame.get_init():
@@ -63,7 +62,6 @@ class Screen(ABC):
         pass
 
     def run(self):
-        """Main loop for the screen"""
         clock = pygame.time.Clock()
         running = True
 

@@ -2,6 +2,7 @@ import pygame
 
 
 class TextInput:
+    # This is used for the ip address input screens/ server adding
 
     def __init__(self, rect, placeholder="", initial_value="",
                  font=None, active_color=(70, 70, 70), inactive_color=(30, 30, 30),

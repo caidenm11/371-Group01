@@ -5,7 +5,8 @@ import threading
 import logging
 from server.server import Server
 
-# --- Config ---
+
+# Config
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 LOG_AREA_HEIGHT = 480
@@ -26,7 +27,6 @@ class PygameLogHandler(logging.Handler):
 
 
 def get_local_ip():
-    """Gets LAN-accessible IP, not just 127.0.0.1."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         # Doesn't need to succeed, just gets the local IP

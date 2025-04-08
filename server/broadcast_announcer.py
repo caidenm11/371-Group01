@@ -9,7 +9,7 @@ GAME_IDENTIFIER = "GAME_IDENTIFIER"  # Replace with the game name
 
 
 def get_local_ip():
-    """Returns the local IP address of the machine."""
+    # Sends some data to a broadcast address to get the local IP
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(('10.255.255.255', 1))

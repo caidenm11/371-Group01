@@ -1,6 +1,6 @@
 import pygame
 from client.config import SCREEN_WIDTH
-
+# This file contains utility functions for rendering text and creating UI elements in Pygame.
 
 def draw_centered_text(screen, text, font, rect, color):
     rendered_text = font.render(text, True, color)

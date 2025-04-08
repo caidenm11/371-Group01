@@ -39,7 +39,7 @@ class MainMenu:
         self.buttons = [self.start_button, self.connect_button, self.exit_button]
 
     def run_server(self):
-        """Start the server in a separate process"""
+        # Start the server in a separate process
         self.server_process = Process(target=server_ui)
         self.server_process.start()
         self.server_started = True
@@ -48,7 +48,7 @@ class MainMenu:
         return self.server_process is not None and self.server_process.is_alive()
 
     def update_server_button(self):
-        """ Show server status on the button """
+        # Show server status on the button
         if not self.is_server_running() and self.server_started:
             self.server_started = False
             self.start_button.base_color = FONT_COLOR
@@ -56,8 +56,9 @@ class MainMenu:
             self.start_button.set_text("Start Server")
 
     def run(self):
-        """Main menu loop"""
+        # Main menu loop
         splash = self.small_font.render("Main Menu!", True, "yellow")
+        # Set splash to game name.
 
         running = True
         while running:

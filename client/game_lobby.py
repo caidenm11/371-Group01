@@ -25,7 +25,7 @@ class GameLobby:
         self.background = load_background("assets/multiplayer-bg.jpg")
 
         self.player_name = player_name
-        self.players = []  # Fully updated by server
+        self.players = []
         self.start_button = Button(None, (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100), "Start Game", self.font, FONT_COLOR,
                                    HOVER_COLOR)
 

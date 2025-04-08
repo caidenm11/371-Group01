@@ -1,9 +1,3 @@
-# Example file showing a circle moving on screen
-import pygame
-from client.client import start_client, send_key, close_client
-import client.client as client_var
-from client.mainmenu import main_menu
-
 players = {}
 objects = {}
 chests = {}
@@ -45,7 +39,6 @@ class Chest:
 # Example file showing a circle moving on screen
 import pygame
 from client.client import start_client, send_key, close_client
-import client.client as client_var
 from client.mainmenu import main_menu
 
 players = {}

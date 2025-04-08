@@ -8,6 +8,7 @@ class LANGameDiscovery:
         self.identifier = identifier
 
     def discover(self, timeout=3):
+        # Discover LAN games by sending a broadcast message and listening for responses
         found = []
         seen_addresses = set()
 
