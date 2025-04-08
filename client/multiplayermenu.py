@@ -172,9 +172,12 @@ class ServerBrowser:
         mouse_pos = pygame.mouse.get_pos()
         visible = self.discovered_servers[self.scroll_offset:self.scroll_offset + MAX_VISIBLE_SERVERS]
 
+        screen_width = self.screen.get_width()
+        rect_width = screen_width - 500
+
         for i, server in enumerate(visible):
             index = self.scroll_offset + i
-            rect = pygame.Rect(100, y_start + i * spacing, 1000, 60)
+            rect = pygame.Rect(100, y_start + i * spacing, rect_width, 60)
 
             # Determine colors
             is_hovered = rect.collidepoint(mouse_pos)
