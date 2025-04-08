@@ -89,8 +89,15 @@ class Server:
             self.broadcast(start_msg)
         elif action == ClientPacketType.PICKUP_ITEM:
             player_id, object_id = int(parts[1]),int( parts[2])
-            update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
-            self.broadcast(update_msg)
+            player = self.players.get(player_id)
+            obj = self.objects.get(object_id)
+
+            if player and obj and obj.held_by is None:
+                player.inventory.append(obj)
+                obj.held_by = player_id
+
+                update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
+                self.broadcast(update_msg)
 
         elif action == ClientPacketType.DROP_ITEM:
             player_id, object_id = int(parts[1]), int(parts[2])
@@ -196,6 +203,10 @@ class Server:
         screen_width, screen_height = 1280, 720
 
         while self.running:
+        # wait until at least two clients are connected
+            while self.running and len(self.client_list) < 2:
+                time.sleep(1)
+
             object_id = self.next_object_id
             self.next_object_id += 1
 
