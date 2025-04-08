@@ -1,7 +1,7 @@
 import argparse
 from client.game import run_main_menu
 
-
+# Main entrypoint for the client application
 def main():
     parser = argparse.ArgumentParser(description="Start the client and connect to a server.")
     parser.add_argument("--host", type=str, default="0.0.0.0",
