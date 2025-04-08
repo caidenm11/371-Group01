@@ -3,6 +3,7 @@ import threading
 import logging
 import random
 import time
+import math
 from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
@@ -25,6 +26,22 @@ class Server:
         self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True)
         self.object_spawn_thread.start()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def is_near_chest(self, obj, chest, chest_size=100, obj_size=50, radius=60):
+        """
+        Checks if the object's center is within `radius` pixels of the chest's center.
+        """
+        chest_center_x = chest.x + chest_size // 2
+        chest_center_y = chest.y + chest_size // 2
+
+        obj_center_x = obj.x + obj_size // 2
+        obj_center_y = obj.y + obj_size // 2
+
+        dx = chest_center_x - obj_center_x
+        dy = chest_center_y - obj_center_y
+        distance = math.hypot(dx, dy)
+
+        return distance < radius
 
     def new_client(self, client_socket, addr):
         logging.info(f"Client connected: {addr}")
@@ -75,12 +92,32 @@ class Server:
             player_id, object_id = int(parts[1]), int(parts[2])
             player = self.players.get(player_id)
             obj = self.objects.get(object_id)
+            chest = self.chests.get(player_id)
 
             if player and obj:
                 # Drop the object in front of the player
                 obj.x = player.x 
                 obj.y = player.y - 50
                 obj.held_by = None
+
+                if self.is_near_chest(obj, chest):
+                    print(f"Object {object_id} is close enough to chest {player_id}")
+
+                    chest.stored_items[object_id] = obj
+                    obj.held_by = None
+                    player.inventory = [o for o in player.inventory if o.object_id != object_id]
+
+                    # Remove from world
+                    if object_id in self.objects:
+                        del self.objects[object_id]
+                    
+                    # Notify clients about the collection
+                    msg = PacketMaker.make(ServerPacketType.OBJECT_IN_CHEST, chest_id=player_id, object_id=object_id)
+                    self.broadcast(msg)
+
+                    despawn_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
+                    self.broadcast(despawn_msg)
+
 
                 update_msg = PacketMaker.make(
                     ServerPacketType.DROP_ITEM,
@@ -197,4 +234,5 @@ class Server:
         for client in self.client_list:
             client.close()
         self.server_socket.close()
+   
 
