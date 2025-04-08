@@ -80,6 +80,10 @@ class Server:
                 player.move(keys)
                 update_msg = PacketMaker.make(ServerPacketType.MOVE_PLAYER, player_id, x=player.x, y=player.y)
                 self.broadcast(update_msg)
+        elif action == ClientPacketType.REQUEST_START_GAME:
+            logging.info("Received game start request. Broadcasting to all clients.")
+            start_msg = PacketMaker.make(ServerPacketType.START_GAME)
+            self.broadcast(start_msg)
 
     def heartbeat_loop(self, interval=5):
         while self.running:
@@ -104,7 +108,7 @@ class Server:
             threading.Event().wait(interval)
 
     def broadcast_player_list(self):
-        message = ",".join(self.player_names)
+        message = "__players__" + ",".join(self.player_names)
         logging.info(f"[Broadcasting] Player list: {message}")
         for sock in self.client_list:
             try:

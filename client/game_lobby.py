@@ -7,6 +7,7 @@ import uuid
 from client.button import Button
 from client.config import SCREEN_WIDTH, SCREEN_HEIGHT, FONT_COLOR, HOVER_COLOR, load_background, create_font, \
     TOTAL_PLAYERS
+from server.packet_maker import ClientPacketType, ServerPacketType
 from client.game import start_game
 
 
@@ -28,6 +29,9 @@ class GameLobby:
         self.start_button = Button(None, (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100), "Start Game", self.font, FONT_COLOR,
                                    HOVER_COLOR)
 
+        self.start_game_requested = False;
+        self.start_game_signal = False
+
         self.server_ip = server_ip
         self.server_port = server_port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,9 +44,18 @@ class GameLobby:
         while True:
             try:
                 data = self.client_socket.recv(1024).decode()
-                if data and data.strip() != "__heartbeat__":
-                    self.update_players(data)
-
+                if not data:
+                    break
+                lines = data.strip().split("\n")
+                for line in lines:
+                    if line == "__heartbeat__":
+                        continue
+                    elif line.startswith(str(ServerPacketType.START_GAME)):
+                        print("[Lobby] Received START_GAME signal!")
+                        self.start_game_signal = True  # set the flag
+                        return
+                    else:
+                        self.update_players(line)
             except Exception as e:
                 print(f"Error receiving data: {e}")
                 break
@@ -70,6 +83,10 @@ class GameLobby:
         running = True
 
         while running:
+            if self.start_game_signal:
+                start_game()
+                return
+
             self.draw_lobby()
             pygame.display.flip()
 
@@ -77,8 +94,12 @@ class GameLobby:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.start_button.checkForInput(event.pos):
-                        start_game()  # Start the game (client-side only for now)
+                    if self.start_button.checkForInput(event.pos) and not self.start_game_requested:
+                        try:
+                            self.client_socket.sendall(f"{ClientPacketType.REQUEST_START_GAME}:\n".encode())
+                            self.start_game_requested = True
+                        except Exception as e:
+                            print("Failed to send start game request:", e)
 
             clock.tick(60)
 

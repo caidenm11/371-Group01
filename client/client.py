@@ -78,14 +78,17 @@ def server_listener(client_socket, address):
 
 def process_packet(data):
     parts = data.split(":")
-    action = int(parts[0])  # Packet type
+    try:
+        action = int(parts[0])
+    except ValueError:
+        print(f"Skipping non-packet message: {data}")
+        return
 
     if action == ServerPacketType.MOVE_PLAYER:
         player_id = int(parts[1])
         x = float(parts[2])
         y = float(parts[3])
 
-        # Ensure valid player ID exists in the dictionary
         if player_id in game_var.players:
             game_var.players[player_id].pos.x = x
             game_var.players[player_id].pos.y = y
@@ -96,7 +99,6 @@ def process_packet(data):
         x = float(parts[2])
         y = float(parts[3])
 
-        # If the player doesn't exist yet, add them to the dictionary
         if player_id not in game_var.players:
             game_var.players[player_id] = game_var.Player(player_id, x, y)
         else:
@@ -111,10 +113,14 @@ def process_packet(data):
         y = float(parts[3])
         armor_type = int(parts[4])
 
-        # Add the new object to the dictionary
         if object_id not in game_var.objects:
             game_var.objects[object_id] = game_var.GameObject(object_id, x, y, armor_type)
         print(f"Spawned Item {object_id} at ({x}, {y})")
+
+    elif action == ServerPacketType.START_GAME:
+        print("[CLIENT] Game start received from server!")
+        # Added handling for the START_GAME packet from the game lobby
+        game_var.start_game()
 
     else:
         print(f"Unknown packet type: {action}")

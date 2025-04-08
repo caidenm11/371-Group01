@@ -5,6 +5,7 @@ class ClientPacketType(IntEnum):
     MOVE_PLAYER = 1
     PICKUP_ITEM = 2
     DROP_ITEM = 3
+    REQUEST_START_GAME = 4 #so the player can start from the lobby.
 
 
 class ServerPacketType(IntEnum):
@@ -15,6 +16,7 @@ class ServerPacketType(IntEnum):
     SPAWN_ITEM = 5
     DESPAWN_ITEM = 6
     SPAWN_CHEST = 7 # ServerPacketType.SPAWN_STAND:<Player ID>:<Stand ID>:<x>:<y>
+    START_GAME = 8 # newly added for the game lobby
 
 
 class PacketMaker:
