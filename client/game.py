@@ -169,49 +169,14 @@ def run_main_menu(host="0.0.0.0", port=53333):
         if keys[pygame.K_d]:
             movement += "d"
         if keys[pygame.K_j]:
-            local_player = players.get(int(client_var.player_id))
             if local_player and len(local_player.inventory) > 0:
-                dropped_item = local_player.inventory.pop(0)
-                dropped_item.held_by = None
+                dropped_item = local_player.inventory[0]  # Don't pop yet
                 send_object_drop(dropped_item.id)
-                print(f"Player {local_player.id} dropped item {dropped_item.id}")
+                print(f"Requested drop of item {dropped_item.id} by player {local_player.id}")
 
         if movement:  # Only send if there's a movement command
             send_key(movement)
 
-        # Check if dropped items land in a chest 
-        for chest in chests.values():
-
-            # Check if the chest is owned by the player
-            if chest.id != int(client_var.player_id):
-                continue  # Skip chests that don't belong to this player
-
-            for obj in list(objects.values()):  # use list to avoid dict size change error
-                if obj.held_by is None and chest.rect.colliderect(obj.rect):
-                    if obj.id not in chest.stored_items:
-                        chest.stored_items[obj.id] = obj
-
-                        print(f"Item {obj.id} collected in chest {chest.id}")
-
-                        # Remove object from world
-                        del objects[obj.id]
-
-                        #Print the current objects the player has
-                        print(f"Player {chest.id} has the following items in the chest: {list(chest.stored_items.values())}")
-
-                        send_chest_drop(chest.id, obj.id) 
-                        send_item_despawn(obj.id)
-
-                        # (Optional) Check for win condition:
-                        collected_types = {o.armor_type for o in chest.stored_items.values()}
-                        if collected_types == {1, 2, 3, 4}:
-                            print(f" Player {chest.id} wins! Collected all armor types!")
-                            screen.blit(win_background, (0, 0))
-                            win_text = font.render(f"Player {chest.id + 1} Wins!", True, (255, 255, 255))
-                            screen.blit(win_text, (screen.get_width() // 2 - 200, screen.get_height() // 2))
-                            pygame.display.flip()
-                            time.sleep(5)
-                            running = False
 
         # collision detection for player touching an object
         local_player = players.get(int(client_var.player_id))

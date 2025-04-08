@@ -164,6 +164,22 @@ def process_packet(data):
         if object_id in game_var.objects:
             del game_var.objects[object_id]
             print(f"Item {object_id} despawned")
+    elif action == ServerPacketType.OBJECT_IN_CHEST:
+        chest_id = int(parts[1])
+        object_id = int(parts[2])
+
+        chest = game_var.chests.get(chest_id)
+        obj = game_var.objects.get(object_id)
+
+        if chest and obj:
+            chest.stored_items[object_id] = obj
+            if object_id in game_var.objects:
+                del game_var.objects[object_id]
+                
+        player = game_var.players.get(chest_id)
+        if player:
+            player.inventory = [o for o in player.inventory if o.id != object_id]
+
 
 
     else:
