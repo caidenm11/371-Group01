@@ -37,6 +37,7 @@ class GameObject(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.held_by = None  # None means it's on the ground
+        self.pickup_pending = False
 
 class Chest:
     def __init__(self, object_id, x, y, color="yellow"):  # Placeholder for object visuals
@@ -150,21 +151,17 @@ def start_game(host="0.0.0.0", port=53333):
                             time.sleep(5)
                             running = False
 
-        
         # collision detection for player touching an object
-        for player in players.values():
-            player_rect = pygame.Rect(player.pos.x - 40, player.pos.y - 40, 40 * 2, 40 * 2)
-
-            # check if player had collided with any game objects
-            # if so, have the player pick it up
-            for object in objects.values():
-                if object.held_by is None and len(player.inventory) == 0 and player_rect.colliderect(object.rect):
-                    print(f"Player Picked up: {object}") # for debugging
-                    player.inventory.append(object)
-                    print(player.inventory[0])
-                    object.held_by = player.id
-                    # send that an object has been picked up
-                    send_object_pickup(object.id)
+        local_player = players.get(int(client_var.player_id))
+        if local_player:
+            player_rect = pygame.Rect(local_player.pos.x - 40, local_player.pos.y - 40, 80, 80)
+            for obj in list(objects.values()):
+                if (obj.held_by is None and not obj.pickup_pending and len(local_player.inventory) == 0
+                and player_rect.colliderect(obj.rect)):
+                    print(f"Local player wants to pick up: {obj}")
+                    obj.pickup_pending = True
+                    send_object_pickup(obj.id)
+                    break
                   
         # update position of objects held by players
         for player in players.values():

@@ -127,10 +127,10 @@ def process_packet(data):
         player = game_var.players[player_id]
         held_object = game_var.objects[object_id]
 
-        player.inventory[0] = held_object
+        if held_object not in player.inventory:
+            player.inventory.append(held_object)
         held_object.held_by = player_id
-        # held_object.rect.topleft.x = player.x
-        # held_object.rect.topleft.y = player.y - 50
+        held_object.pickup_pending = False
 
     elif action == ServerPacketType.SPAWN_CHEST:
         player_id = int(parts[1])
@@ -193,7 +193,7 @@ def send_key(data):
             print(f"[ERROR] Failed to send movement: {e}")
 
 def send_object_pickup(data):
-    data = ServerPacketMaker(ServerPacketType.PICKUP_ITEM, player_id, object_id=data)
+    data = ServerPacketMaker(ClientPacketType.PICKUP_ITEM, player_id, object_id=data)
     message = data.encode("utf-8")
     client_socket.send(message)
 
