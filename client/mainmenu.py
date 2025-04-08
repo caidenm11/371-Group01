@@ -16,10 +16,16 @@ class MainMenu:
         pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Game")
+        pygame.display.set_caption("Knight Club")
+        self.logo = pygame.image.load("assets/logo.png").convert_alpha()
+        self.logo = pygame.transform.smoothscale(self.logo, (500, 500))  # Adjust size as needed
+        icon = pygame.image.load("assets/logo-black.png").convert_alpha()
+        pygame.display.set_icon(icon)
 
         self.font = create_font(TITLE_FONT_SIZE)
         self.small_font = create_font(NORMAL_FONT_SIZE)
+
+
 
         self.background = load_background(MAIN_MENU_BG)
 
@@ -57,14 +63,21 @@ class MainMenu:
 
     def run(self):
         # Main menu loop
-        splash = self.small_font.render("Main Menu!", True, "yellow")
+        # splash = self.small_font.render("Main Menu!", True, "yellow")
+        # This should be
         # Set splash to game name.
+        # self.screen.blit(splash, (SCREEN_WIDTH // 2 - splash.get_width() // 2, 60))
 
         running = True
         while running:
             # Clear screen and draw background
             self.screen.blit(self.background, (0, 0))
-            self.screen.blit(splash, (SCREEN_WIDTH // 2 - splash.get_width() // 2, 60))
+            # self.screen.blit(splash, (SCREEN_WIDTH // 2 - splash.get_width() // 2, 60))
+            # For the logo, center it at the top of the screen
+            logo_x = (SCREEN_WIDTH - self.logo.get_width()) // 2
+            logo_y = -50
+            self.screen.blit(self.logo, (logo_x, logo_y))
+
 
             self.update_server_button()
 
