@@ -1,8 +1,8 @@
 import pygame
 
 # Screen settings
-SCREEN_WIDTH = 1512
-SCREEN_HEIGHT = 982
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 
 # UI settings
 BUTTON_WIDTH = 420

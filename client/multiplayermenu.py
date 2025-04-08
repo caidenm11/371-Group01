@@ -41,10 +41,10 @@ class ServerBrowser:
 
     def _create_buttons(self):
         # Create all buttons for the server browser
-        self.add_button = Button(None, (1300, 150), "Add Server", self.font, FONT_COLOR, HOVER_COLOR)
-        self.refresh_button = Button(None, (1300, 250), "Refresh", self.font, FONT_COLOR, HOVER_COLOR)
-        self.connect_button = Button(None, (1300, 350), "Direct Connect", self.font, FONT_COLOR, HOVER_COLOR)
-        self.connect_selected_button = Button(None, (1300, 550), "Join Selected", self.font, FONT_COLOR, HOVER_COLOR)
+        self.add_button = Button(None, (1100, 150), "Add Server", self.font, FONT_COLOR, HOVER_COLOR)
+        self.refresh_button = Button(None, (1100, 250), "Refresh", self.font, FONT_COLOR, HOVER_COLOR)
+        self.connect_button = Button(None, (1100, 350), "Direct Connect", self.font, FONT_COLOR, HOVER_COLOR)
+        self.connect_selected_button = Button(None, (1100, 550), "Join Selected", self.font, FONT_COLOR, HOVER_COLOR)
         self.exit_button = Button(None, (SCREEN_WIDTH // 2, SCREEN_HEIGHT - 60), "Exit", self.font, FONT_COLOR,
                                   HOVER_COLOR)
 

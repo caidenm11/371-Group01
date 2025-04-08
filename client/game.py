@@ -1,8 +1,8 @@
 players = {}
 objects = {}
 chests = {}
-SCREEN_WIDTH = 1512
-SCREEN_HEIGHT = 982
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 
 
 class Player:
@@ -44,8 +44,8 @@ from client.mainmenu import main_menu
 players = {}
 objects = {}
 chests = {}
-SCREEN_WIDTH = 1512
-SCREEN_HEIGHT = 982
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 
 
 class Player:
