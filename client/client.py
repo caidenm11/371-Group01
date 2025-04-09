@@ -21,7 +21,9 @@ class ServerPacketType(IntEnum):
     DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
     SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>:<armor type>
     DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN_ITEM:<Object ID>
-    SPAWN_CHEST = 7  # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
+    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
+    OBJECT_IN_CHEST = 8 # ServerPacketType.OBJECT_IN_CHEST:<Chest ID>:<Object ID>
+    WIN_PLAYER = 9 # ServerPacketType.WIN_PLAYER:<Player ID>
 
 
 def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None, armor_type=None):

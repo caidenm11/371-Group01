@@ -11,14 +11,16 @@ class ClientPacketType(IntEnum):
 
 
 class ServerPacketType(IntEnum):
-    MOVE_PLAYER = 1
-    SPAWN_PLAYER = 2
-    PICKUP_ITEM = 3
-    DROP_ITEM = 4
-    SPAWN_ITEM = 5
-    DESPAWN_ITEM = 6
-    SPAWN_CHEST = 7  # ServerPacketType.SPAWN_STAND:<Player ID>:<Stand ID>:<x>:<y>
-    START_GAME = 8  # newly added for the game lobby -- starting game
+    MOVE_PLAYER = 1  # ServerPacketType.MOVE_PLAYER:<Player ID>:<x>:<y>:<state>
+    SPAWN_PLAYER = 2  # ServerPacketType.SPAWN_PLAYER:<Player ID>:<x>:<y>
+    PICKUP_ITEM = 3  # ServerPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
+    DROP_ITEM = 4  # ServerPacketType.DROP_ITEM:<Player ID>:<Object ID>:<x>:<y>
+    SPAWN_ITEM = 5  # ServerPacketType.SPAWN_ITEM:<Object ID>:<x>:<y>:<armor type>
+    DESPAWN_ITEM = 6  # ServerPacketType.DESPAWN_ITEM:<Object ID>
+    SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
+    OBJECT_IN_CHEST = 8 # ServerPacketType.OBJECT_IN_CHEST:<Chest ID>:<Object ID>
+    WIN_PLAYER = 9 # ServerPacketType.WIN_PLAYER:<Player ID>
+    START_GAME = 10
 
 
 class PacketMaker:
