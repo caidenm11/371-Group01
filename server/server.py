@@ -103,7 +103,10 @@ class Server:
                 if self.is_near_chest(obj, chest):
                     print(f"Object {object_id} is close enough to chest {player_id}")
 
-                    chest.stored_items[object_id] = obj
+                    # Check if the chest doesn't already have the object
+                    if obj.armor_type not in chest.stored_items:
+                        chest.stored_items[object_id] = obj
+
                     obj.held_by = None
                     player.inventory = [o for o in player.inventory if o.object_id != object_id]
 
@@ -118,6 +121,11 @@ class Server:
                     despawn_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
                     self.broadcast(despawn_msg)
 
+                    if len(chest.stored_items) == 4:
+                        # Notify the player that they won
+                        print(f"Player {player_id} has won the game!")
+                        win_msg = PacketMaker.make(ServerPacketType.WIN_PLAYER, player_id=player_id)
+                        self.broadcast(win_msg)
 
                 update_msg = PacketMaker.make(
                     ServerPacketType.DROP_ITEM,

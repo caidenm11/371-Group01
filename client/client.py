@@ -1,5 +1,6 @@
 import socket
 import threading
+import queue
 import client.game as game_var
 from enum import IntEnum
 
@@ -175,7 +176,12 @@ def process_packet(data):
         if player:
             player.inventory = [o for o in player.inventory if o.id != object_id]
 
+    elif action == ServerPacketType.WIN_PLAYER:
+        player_id = int(parts[1])
+        print(f"Player {player_id} has won the game!")
 
+        #game_var.handle_win(player_id)
+        game_var.event_queue.put(('WIN_PLAYER', player_id))
 
     else:
         print(f"Unknown packet type: {action}")

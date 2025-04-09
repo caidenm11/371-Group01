@@ -1,5 +1,6 @@
 import pygame
 import time
+import queue
 from client.client import start_client, close_client, send_key, send_object_pickup, send_object_drop, send_chest_drop, send_item_despawn
 import client.client as client_var
 
@@ -12,6 +13,8 @@ screen = pygame.display.set_mode((1280, 720))
 
 win_background = pygame.image.load("resources/win_screen.png")
 win_background = pygame.transform.scale(win_background, (1280, 720))
+
+event_queue = queue.Queue()
 
 class Player:
     def __init__(self, player_id, x=0, y=0, color="red"):
@@ -51,6 +54,24 @@ class Chest:
         self.held_by = None  # None means it's on the ground
         self.stored_items = {}  # Dictionary to hold items in the chest
 
+def draw_win_screen():
+    screen.fill("black")
+    screen.blit(win_background, (0, 0))
+    pygame.display.flip()
+
+def handle_win(player_id):
+    draw_win_screen()
+    print(f"Player {player_id} wins!")
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        # (Your other game update and rendering code)
+        pygame.display.flip()
+
 
 def start_game(host="0.0.0.0", port=53333):
     # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
@@ -80,6 +101,23 @@ def start_game(host="0.0.0.0", port=53333):
     # chests = {i: Chest(i, 0 if i % 2 == 0 else screen.get_width() - 100, 0 if i < 2 else screen.get_height() - 100) for i in range(4)}
 
     while running:
+        # Checking the win condition
+        while not event_queue.empty():
+            action, data = event_queue.get()
+            if action == "WIN_PLAYER":
+                draw_win_screen()
+                print(f"Player {data} wins!")
+
+                waiting = True
+                while waiting:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            exit()
+                        # MAYBE do this if you want to enter the game again
+                        # elif event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                        #     waiting = False
+        
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
@@ -115,7 +153,7 @@ def start_game(host="0.0.0.0", port=53333):
         if movement:  # Only send if there's a movement command
             send_key(movement)
 
-
+        
         # collision detection for player touching an object
         local_player = players.get(int(client_var.player_id))
         if local_player:
