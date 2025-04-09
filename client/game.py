@@ -1,6 +1,5 @@
-# Example file showing a circle moving on screen
 import pygame
-import random
+import time
 from client.client import start_client, close_client, send_key, send_object_pickup, send_object_drop, send_chest_drop, send_item_despawn
 import client.client as client_var
 from client.mainmenu import main_menu
@@ -13,6 +12,9 @@ SCREEN_HEIGHT = 720
 
 object_list = [1, 2, 3, 4]
 screen = pygame.display.set_mode((1280, 720))
+
+win_background = pygame.image.load("resources/win_screen.png")
+win_background = pygame.transform.scale(win_background, (1280, 720))
 
 class Player:
     def __init__(self, player_id, x=0, y=0, color="red"):
@@ -121,6 +123,7 @@ def run_main_menu(host="0.0.0.0", port=53333):
     pygame.init()
     
     clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 74)
 
     # Try to connect
     try:
@@ -202,6 +205,12 @@ def run_main_menu(host="0.0.0.0", port=53333):
                         collected_types = {o.armor_type for o in chest.stored_items.values()}
                         if collected_types == {1, 2, 3, 4}:
                             print(f" Player {chest.id} wins! Collected all armor types!")
+                            screen.blit(win_background, (0, 0))
+                            win_text = font.render(f"Player {chest.id + 1} Wins!", True, (255, 255, 255))
+                            screen.blit(win_text, (screen.get_width() // 2 - 200, screen.get_height() // 2))
+                            pygame.display.flip()
+                            time.sleep(5)
+                            running = False
 
         
         # collision detection for player touching an object
@@ -219,7 +228,7 @@ def run_main_menu(host="0.0.0.0", port=53333):
                     # send that an object has been picked up
                     send_object_pickup(object.id)
                   
-
+        # update position of objects held by players
         for player in players.values():
             if len(player.inventory) > 0:
                 player.inventory[0].rect.center = (player.pos.x - 40, player.pos.y - 50)
@@ -228,6 +237,7 @@ def run_main_menu(host="0.0.0.0", port=53333):
             if obj.held_by is not None:
                 obj.rect.topleft = (players[obj.held_by].pos.x, players[obj.held_by].pos.y - 50)
 
+        # draw all objects
         for obj in objects.values():
             screen.blit(obj.image, obj.rect.topleft)
 
