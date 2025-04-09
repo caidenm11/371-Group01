@@ -24,6 +24,8 @@ class Player:
         self.pos = pygame.Vector2(x, y)
         self.color = color  # Placeholder for unique player colors
         self.inventory = []  # List of held object IDs
+        self.image = pygame.image.load(f"resources/player_{player_id}.png")
+        self.image = pygame.transform.scale(self.image, (70, 70))
         
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, self.pos, 40)
@@ -54,24 +56,17 @@ class Chest:
         self.held_by = None  # None means it's on the ground
         self.stored_items = {}  # Dictionary to hold items in the chest
 
-def draw_win_screen():
+def draw_win_screen(player_id):
     screen.fill("black")
     screen.blit(win_background, (0, 0))
     pygame.display.flip()
 
-def handle_win(player_id):
-    draw_win_screen()
-    print(f"Player {player_id} wins!")
+    font = pygame.font.Font(None,100)
+    text = font.render(f"Player {player_id} Wins!", True, (225,225,255))
+    text_rect = text.get_rect(center=(screen.get_width()//2, screen.get_height()//2+200))
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        # (Your other game update and rendering code)
-        pygame.display.flip()
-
+    screen.blit(text, text_rect)
+    pygame.display.flip()
 
 def start_game(host="0.0.0.0", port=53333):
     # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
@@ -105,7 +100,7 @@ def start_game(host="0.0.0.0", port=53333):
         while not event_queue.empty():
             action, data = event_queue.get()
             if action == "WIN_PLAYER":
-                draw_win_screen()
+                draw_win_screen(data)
                 print(f"Player {data} wins!")
 
                 waiting = True
@@ -128,7 +123,8 @@ def start_game(host="0.0.0.0", port=53333):
         screen.fill("light blue")
 
         for player in players.values():
-            player.draw(screen)
+            #player.draw(screen)
+            screen.blit(player.image, player.pos)
 
         for chest in chests.values():
             screen.blit(chest.image, chest.rect.topleft)

@@ -206,6 +206,10 @@ def send_key(data):
     # data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
     # message = data.encode("utf-8")
     # client_socket.send(message)
+    # if "a" in data:
+    #     game_var.flip_player(1)
+    # elif "d" in data:
+    #     game_var.flip_player(0)
     if client_socket:
         try:
             data = ServerPacketMaker(ClientPacketType.MOVE_PLAYER, player_id, keys=data)

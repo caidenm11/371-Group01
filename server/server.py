@@ -26,6 +26,7 @@ class Server:
         self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True)
         self.object_spawn_thread.start()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.object_locks = {}
 
     def is_near_chest(self, obj, chest, chest_size=100, obj_size=50, radius=60):
         """
@@ -81,12 +82,15 @@ class Server:
             player = self.players.get(player_id)
             obj = self.objects.get(object_id)
 
-            if player and obj and obj.held_by is None:
-                player.inventory.append(obj)
-                obj.held_by = player_id
+            lock = self.object_locks.get(object_id)
+            if player and obj and lock:
+                with lock:
+                    if obj.held_by is None:
+                        player.inventory.append(obj)
+                        obj.held_by = player_id
 
-                update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
-                self.broadcast(update_msg)
+                        update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
+                        self.broadcast(update_msg)
 
         elif action == ClientPacketType.DROP_ITEM:
             player_id, object_id = int(parts[1]), int(parts[2])
@@ -104,7 +108,7 @@ class Server:
                     print(f"Object {object_id} is close enough to chest {player_id}")
 
                     # Check if the chest doesn't already have the object
-                    if obj.armor_type not in chest.stored_items:
+                    if obj.armor_type not in [o.armor_type for o in chest.stored_items.values()]:
                         chest.stored_items[object_id] = obj
 
                     obj.held_by = None
@@ -165,6 +169,7 @@ class Server:
                 time.sleep(1)
 
             object_id = self.next_object_id
+            self.object_locks[object_id] = threading.Lock()
             self.next_object_id += 1
 
             x = random.randint(0, screen_width - 40)
