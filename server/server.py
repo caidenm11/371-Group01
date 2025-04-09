@@ -233,6 +233,26 @@ class Server:
         except socket.timeout:
             return None
         
+    def player_init(self, player_id):
+        x = 200 if player_id % 2 == 0 else 1280 - 200
+        y = 200 if player_id % 2 == 0 else 720 - 200
+        self.players[player_id] = Player(player_id=player_id, x=x, y=y)
+
+    def chest_init(self, player_id):
+        x = 200 if player_id % 2 == 0 else 1280 - 200
+        y = 200 if player_id % 2 == 0 else 720 - 200
+        self.chests[player_id] = GameObject(object_id=player_id, x=x, y=y, armor_type="chest")
+
+    def broadcast_chests(self, count):
+        for i in range(count):
+            packet = PacketMaker.make(ServerPacketType.SPAWN_CHEST, player_id=i, chest_id=i, x=self.chests[i].x, y=self.chests)
+            self.broadcast(packet)
+
+    def broadcast_players(self, count):
+        for i in range(count):
+            packet = PacketMaker.make(ServerPacketType.SPAWN_PLAYER, player_id=i, x=self.players[i].x, y=self.players[i].y)
+            self.broadcast(packet)
+        
     def _connection_loop(self):
         try:
             while self.running:
@@ -240,7 +260,15 @@ class Server:
                 if result:
                     client_socket, address = result
                     client_socket.send(str(self.user_count).encode())
+
+                    self.player_init(self.user_count)
+                    self.chest_init(self.user_count)
+
                     self.user_count += 1
+
+                    self.broadcast_players(self.user_count)
+                    self.broadcast_chests(self.user_count)
+
                     threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
         except Exception as e:
             logging.error(f"Connection loop error: {e}")

@@ -10,8 +10,9 @@ class ClientPacketType(IntEnum):
     MOVE_PLAYER = 1  # ClientPacketType.MOVE:<Player ID>:<Keys>
     PICKUP_ITEM = 2  # ClientPacketType.PICKUP_ITEM:<Player ID>:<Object ID>
     DROP_ITEM = 3  # ClientPacketType.DROP_ITEM:<Player ID>:<Object ID>
-    CHEST_DROP = 4  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
-    DESPAWN_ITEM = 5 
+    REQUEST_START_GAME = 4  # so the player can start from the lobby.
+    CHEST_DROP = 5  # ClientPacketType.CHEST_DROP:<Player ID>:<Chest ID>
+    DESPAWN_ITEM = 6
 
 
 # Actions the client receives from server
@@ -25,6 +26,7 @@ class ServerPacketType(IntEnum):
     SPAWN_CHEST = 7 # ServerPacketType.SPAWN_CHEST:<Player ID>:<Chest ID>:<x>:<y>
     OBJECT_IN_CHEST = 8 # ServerPacketType.OBJECT_IN_CHEST:<Chest ID>:<Object ID>
     WIN_PLAYER = 9 # ServerPacketType.WIN_PLAYER:<Player ID>
+    START_GAME = 10
 
 
 def ServerPacketMaker(action, player_id=None, chest_id=None, object_id=None, keys=None, state=None, armor_type=None):
@@ -200,7 +202,7 @@ def start_client(host="0.0.0.0", port=53333):
     print(f"[CLIENT] Connected from local socket: {client_socket.getsockname()}")
 
     player_id = client_socket.recv(1024).decode()
-    # print(client_id)
+    # print("sdfsdkjfksdjflk: " + player_id)
     client_thread = threading.Thread(target=server_listener, daemon=True, args=(client_socket, None))
     client_thread.start()
 
@@ -208,9 +210,6 @@ def start_client(host="0.0.0.0", port=53333):
 def send_key(data):
     global client_socket
     global player_id
-    data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
-    message = data.encode("utf-8")
-    client_socket.send(message)
     # client_socket.send(message)
     # if client_socket:
     #     try:

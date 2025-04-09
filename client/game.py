@@ -93,47 +93,6 @@ def start_game(host="0.0.0.0", port=53333):
         print(f"❌ Failed to connect to server at {host}:{port}: {e}")
         return
 
-    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        keys = pygame.key.get_pressed()
-        movement = ""
-        if keys[pygame.K_w]: movement += "w"
-        if keys[pygame.K_s]: movement += "s"
-        if keys[pygame.K_a]: movement += "a"
-        if keys[pygame.K_d]: movement += "d"
-        if movement:
-            send_key(movement)
-
-        screen.fill("purple")
-        for player in players.values():
-            player.draw(screen)
-
-        pygame.display.flip()
-        clock.tick(60)
-
-    close_client()
-    pygame.quit()
-
-
-def run_main_menu(host="0.0.0.0", port=53333):
-    # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
-
-    # pygame setup
-    global players
-    global objects
-    # pygame.init()
-    # screen = pygame.display.set_mode((1280, 720))
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    # Start the main menu
-    main_menu()
-    # Fill the screen black to start this screen
-
     global chests
     pygame.init()
     
@@ -245,3 +204,19 @@ def run_main_menu(host="0.0.0.0", port=53333):
 
     close_client()
     pygame.quit()
+
+
+
+def run_main_menu(host="0.0.0.0", port=53333):
+    # 🛠️ Change this to your server's IP if running over Wi-Fi or LAN
+
+    # pygame setup
+    global players
+    global objects
+    # pygame.init()
+    # screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    # Start the main menu
+    main_menu()
+    # Fill the screen black to start this screen
+
