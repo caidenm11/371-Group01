@@ -7,6 +7,7 @@ from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
 from Engine.gameobject import GameObject
+from server.broadcast_announcer import start_broadcast, get_local_ip
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
 
@@ -176,6 +177,20 @@ class Server:
         except socket.timeout:
             return None
         
+    def _connection_loop(self):
+        try:
+            while self.running:
+                result = self.accept_connection()
+                if result:
+                    client_socket, address = result
+                    client_socket.send(str(self.user_count).encode())
+                    self.user_count += 1
+                    threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+        except Exception as e:
+            logging.error(f"Connection loop error: {e}")
+        finally:
+            self.shutdown()
+        
     def spawn_items_loop(self):
         armor_types = [1, 2, 3, 4]  # helmet, chestplate, pants, boots
         screen_width, screen_height = 1280, 720
@@ -204,29 +219,29 @@ class Server:
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)
 
-    def start(self):
-        self.server_socket.bind((self.host, self.port))
-        self.server_socket.listen(4)
-        self.server_socket.settimeout(1.0)
-        logging.info(f"Server started on {self.host}:{self.port}")
+    # def start(self):
+    #     self.server_socket.bind((self.host, self.port))
+    #     self.server_socket.listen(4)
+    #     self.server_socket.settimeout(1.0)
+    #     logging.info(f"Server started on {self.host}:{self.port}")
 
-        try:
-            while self.running:
-                result = self.accept_connection()
-                if result:
-                    client_socket, address = result
-                    client_socket.send(str(self.user_count).encode())
+    #     try:
+    #         while self.running:
+    #             result = self.accept_connection()
+    #             if result:
+    #                 client_socket, address = result
+    #                 client_socket.send(str(self.user_count).encode())
 
-                    self.player_init(self.user_count)
-                    self.chest_init(self.user_count)
+    #                 self.player_init(self.user_count)
+    #                 self.chest_init(self.user_count)
 
-                    self.user_count += 1
+    #                 self.user_count += 1
 
-                    threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
-        except Exception as e:
-            logging.error(f"Connection loop error: {e}")
-        finally:
-            self.shutdown()
+    #                 threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+    #     except Exception as e:
+    #         logging.error(f"Connection loop error: {e}")
+    #     finally:
+    #         self.shutdown()
 
     def start(self):
         while True:

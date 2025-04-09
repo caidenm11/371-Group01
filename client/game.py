@@ -133,7 +133,7 @@ def run_main_menu(host="0.0.0.0", port=53333):
     dt = 0
 
 
-    # players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)} 
+    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)} 
     # putting the chests in the 4 corners of the screen
     # chests = {i: Chest(i, 0 if i % 2 == 0 else screen.get_width() - 100, 0 if i < 2 else screen.get_height() - 100) for i in range(4)}
 

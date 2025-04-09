@@ -184,16 +184,17 @@ def start_client(host="0.0.0.0", port=53333):
 def send_key(data):
     global client_socket
     global player_id
-    # data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
-    # message = data.encode("utf-8")
+    data = ServerPacketMaker(ServerPacketType.MOVE_PLAYER, player_id, keys=data)
+    message = data.encode("utf-8")
+    client_socket.send(message)
     # client_socket.send(message)
-    if client_socket:
-        try:
-            data = ServerPacketMaker(ClientPacketType.MOVE_PLAYER, player_id, keys=data)
-            message = data.encode("utf-8")
-            client_socket.send(message)
-        except OSError as e:
-            print(f"[ERROR] Failed to send movement: {e}")
+    # if client_socket:
+    #     try:
+    #         data = ServerPacketMaker(ClientPacketType.MOVE_PLAYER, player_id, keys=data)
+    #         message = data.encode("utf-8")
+    #         client_socket.send(message)
+    #     except OSError as e:
+    #         print(f"[ERROR] Failed to send movement: {e}")
 
 def send_object_pickup(data):
     data = ServerPacketMaker(ServerPacketType.PICKUP_ITEM, player_id, object_id=data)
