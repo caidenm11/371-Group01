@@ -219,6 +219,17 @@ def send_key(data):
     #         client_socket.send(message)
     #     except OSError as e:
     #         print(f"[ERROR] Failed to send movement: {e}")
+    # if "a" in data:
+    #     game_var.flip_player(1)
+    # elif "d" in data:
+    #     game_var.flip_player(0)
+    if client_socket:
+        try:
+            data = ServerPacketMaker(ClientPacketType.MOVE_PLAYER, player_id, keys=data)
+            message = data.encode("utf-8")
+            client_socket.send(message)
+        except OSError as e:
+            print(f"[ERROR] Failed to send movement: {e}")
 
 def send_object_pickup(data):
     data = ServerPacketMaker(ClientPacketType.PICKUP_ITEM, player_id, object_id=data)
