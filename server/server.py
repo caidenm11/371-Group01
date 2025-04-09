@@ -346,6 +346,7 @@ class Server:
         logging.info(f"Server started on {self.host}:{self.port}")
 
         display_ip = get_local_ip()
+        # This sends the broadcast to the local network so when you press refresh, you can find this packet and display the server.
         start_broadcast(display_ip, self.port, len(self.players), 8, "LAN Party")
 
         threading.Thread(target=self._connection_loop, daemon=True).start()
