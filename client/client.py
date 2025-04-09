@@ -84,6 +84,7 @@ def server_listener(client_socket, address):
 
 
 def process_packet(data):
+    print("Client recieves: " + data)
     parts = data.split(":")
     try:
         action = int(parts[0])
@@ -194,17 +195,20 @@ def process_packet(data):
         print(f"Unknown packet type: {action}")
 
 
-def start_client(host="0.0.0.0", port=53333):
+def start_client(host="0.0.0.0", port=53333, role="game"):
     global client_socket
     global player_id
+
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
-    print(f"[CLIENT] Connected from local socket: {client_socket.getsockname()}")
 
-    player_id = client_socket.recv(1024).decode()
-    # print("sdfsdkjfksdjflk: " + player_id)
-    client_thread = threading.Thread(target=server_listener, daemon=True, args=(client_socket, None))
-    client_thread.start()
+    # Tell the server what this client is
+    client_socket.sendall(role.encode())  # <-- send role string like "lobby" or "game"
+
+    if role == "game":
+        player_id = client_socket.recv(1024).decode()
+        print("Player ID: " + player_id)
+        threading.Thread(target=server_listener, daemon=True, args=(client_socket, None)).start()
 
 
 def send_key(data):

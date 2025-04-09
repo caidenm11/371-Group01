@@ -7,6 +7,7 @@ import math
 from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
+from Engine.chest import Chest
 from Engine.gameobject import GameObject
 from server.broadcast_announcer import start_broadcast, get_local_ip
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
@@ -103,6 +104,10 @@ class Server:
                 self.broadcast(update_msg)
         elif action == ClientPacketType.REQUEST_START_GAME:
             logging.info("Received game start request. Broadcasting to all clients.")
+
+            # self.broadcast_players()
+            # self.broadcast_chests()
+
             start_msg = PacketMaker.make(ServerPacketType.START_GAME)
             self.broadcast(start_msg)
         elif action == ClientPacketType.PICKUP_ITEM:
@@ -182,7 +187,7 @@ class Server:
             to_remove = []
             for sock in self.client_list[:]:
                 try:
-                    sock.sendall(b"__heartbeat__")
+                    sock.sendall(b"__heartbeat__\n")
                 except Exception as e:
                     logging.warning(f"Heartbeat failed, removing client: {e}")
                     to_remove.append(sock)
@@ -201,7 +206,7 @@ class Server:
 
     def broadcast_player_list(self):
         # Broadcast the list of players to all clients
-        message = "__players__" + ",".join(self.player_names)
+        message = ",".join(self.player_names) + "\n"
         logging.info(f"[Broadcasting] Player list: {message}")
         for sock in self.client_list:
             try:
@@ -233,24 +238,28 @@ class Server:
         except socket.timeout:
             return None
         
+    def chest_init(self, chest_id):
+        x = 0 if chest_id % 2 == 0 else 1280 - 100
+        y = 0 if chest_id < 2 else 720 - 100
+        self.chests[chest_id] = Chest(chest_id=chest_id, player_id=chest_id, x=x, y=y)
+        print(f"Adding chest: {chest_id} at position ({x}, {y})")
+    
     def player_init(self, player_id):
         x = 200 if player_id % 2 == 0 else 1280 - 200
-        y = 200 if player_id % 2 == 0 else 720 - 200
+        y = 200 if player_id < 2 else 720 - 200
         self.players[player_id] = Player(player_id=player_id, x=x, y=y)
+        print(f"Adding player: {player_id} at position ({x}, {y})")
 
-    def chest_init(self, player_id):
-        x = 200 if player_id % 2 == 0 else 1280 - 200
-        y = 200 if player_id % 2 == 0 else 720 - 200
-        self.chests[player_id] = GameObject(object_id=player_id, x=x, y=y, armor_type="chest")
-
-    def broadcast_chests(self, count):
-        for i in range(count):
-            packet = PacketMaker.make(ServerPacketType.SPAWN_CHEST, player_id=i, chest_id=i, x=self.chests[i].x, y=self.chests)
+    def broadcast_chests(self):
+        for i in range(self.user_count):
+            packet = PacketMaker.make(ServerPacketType.SPAWN_CHEST, player_id=i, chest_id=i, x=self.chests[i].x, y=self.chests[i].y)
+            print("Boadcast chest: " + packet)
             self.broadcast(packet)
 
-    def broadcast_players(self, count):
-        for i in range(count):
+    def broadcast_players(self):
+        for i in range(self.user_count):
             packet = PacketMaker.make(ServerPacketType.SPAWN_PLAYER, player_id=i, x=self.players[i].x, y=self.players[i].y)
+            print("Boadcast player: " + packet)
             self.broadcast(packet)
         
     def _connection_loop(self):
@@ -259,17 +268,24 @@ class Server:
                 result = self.accept_connection()
                 if result:
                     client_socket, address = result
-                    client_socket.send(str(self.user_count).encode())
 
-                    self.player_init(self.user_count)
-                    self.chest_init(self.user_count)
+                    # Receive role string: 'lobby' or 'game'
+                    role = client_socket.recv(1024).decode().strip()
+                    print(f"[SERVER] Connection from {address} with role: {role}")
 
-                    self.user_count += 1
+                    if role == "game":
+                        client_socket.send(str(self.user_count).encode())
 
-                    self.broadcast_players(self.user_count)
-                    self.broadcast_chests(self.user_count)
+                        self.player_init(self.user_count)
+                        self.chest_init(self.user_count)
 
+                        print("user_count: " + str(self.user_count))
+
+                        self.user_count += 1
+
+                    # Start the client listener thread regardless of role
                     threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+
         except Exception as e:
             logging.error(f"Connection loop error: {e}")
         finally:
@@ -304,6 +320,9 @@ class Server:
 
             self.broadcast(packet)
             logging.info(f"Spawned item {object_id} at ({x},{y})")
+
+            self.broadcast_players()
+            self.broadcast_chests()
 
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)

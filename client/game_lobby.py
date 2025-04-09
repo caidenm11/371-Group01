@@ -10,6 +10,8 @@ from client.config import SCREEN_WIDTH, SCREEN_HEIGHT, FONT_COLOR, HOVER_COLOR, 
 from server.packet_maker import ClientPacketType, ServerPacketType
 from client.game import start_game
 
+import time
+
 
 class GameLobby:
     def __init__(self, player_name, server_ip, server_port):
@@ -36,7 +38,9 @@ class GameLobby:
         self.server_port = server_port
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.server_ip, self.server_port))
-        self.client_socket.sendall(self.player_name.encode())  # Send name to server once
+        self.client_socket.sendall(b"lobby")  # Tell server we're a lobby client
+        time.sleep(0.1)  # Slight delay to avoid packet mix-up
+        self.client_socket.sendall(self.player_name.encode())  # Then send the player name
 
         threading.Thread(target=self.receive_data, daemon=True).start()
 

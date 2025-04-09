@@ -64,16 +64,28 @@ class Chest:
 
 
 def draw_win_screen(player_id):
-    screen.fill("black")
-    screen.blit(win_background, (0, 0))
-    pygame.display.flip()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:  # Check if the user clicked the X button
+                running = False
 
-    font = pygame.font.Font(None, 100)
-    text = font.render(f"Player {player_id} Wins!", True, (225, 225, 255))
-    text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 200))
+        # Drawing the win screen
+        screen.fill("black")
+        screen.blit(win_background, (0, 0))
+        pygame.display.flip()
 
-    screen.blit(text, text_rect)
-    pygame.display.flip()
+        font = pygame.font.Font(None, 100)
+        text = font.render(f"Player {player_id} Wins!", True, (225, 225, 255))
+        text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 200))
+
+        screen.blit(text, text_rect)
+        pygame.display.flip()
+
+        time.sleep(10)  # Show the win screen for 10 seconds before quitting
+        running = False  # Exit the loop after 10 seconds
+
+    pygame.quit()  # Quit pygame when done
 
 
 def run_main_menu_screen(host="0.0.0.0", port=53333):
@@ -107,7 +119,7 @@ def start_game(host="0.0.0.0", port=53333):
     running = True
     dt = 0
 
-    players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
+    # players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
     # putting the chests in the 4 corners of the screen
     # chests = {i: Chest(i, 0 if i % 2 == 0 else screen.get_width() - 100, 0 if i < 2 else screen.get_height() - 100) for i in range(4)}
 

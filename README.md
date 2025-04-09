@@ -1,6 +1,3 @@
-Here's an example of a `README.md` with instructions on how to create a virtual environment and install the dependencies from `requirements.txt`:
-
-```markdown
 # Game Project with Pygame
 
 This project is a Python-based game using Pygame. It includes both client-server functionality, allowing you to either host a game or join an existing server.
@@ -64,22 +61,8 @@ You can now run the game by using the appropriate entry point.
 
 To start a new game:
   ```bash
-  python main.py
+  python startclient.py
   ```
-
-Below is for future reference.
-
-~~
-- To start a new game and host a server:
-  ```bash
-  python main.py --host
-  ```
-
-- To join an existing server:
-  ```bash
-  python main.py --join <server_address>
-  ```
-~~
 
 ### 6. Deactivate the Virtual Environment
 
