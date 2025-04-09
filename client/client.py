@@ -208,6 +208,8 @@ def start_client(host="0.0.0.0", port=53333, role="game"):
     if role == "game":
         player_id = client_socket.recv(1024).decode()
         print("Player ID: " + player_id)
+
+        # client_socket.sendall(player_id.encode())
         threading.Thread(target=server_listener, daemon=True, args=(client_socket, None)).start()
 
 

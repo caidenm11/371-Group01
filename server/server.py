@@ -47,19 +47,32 @@ class Server:
 
         return distance < radius
 
-    def new_client(self, client_socket, addr):
+    def new_client(self, client_socket, addr, role):
         logging.info(f"Client connected: {addr}")
         try:
-            player_name = client_socket.recv(1024).decode().strip()
-            if not player_name:
-                logging.warning("Empty player name received, closing connection")
-                client_socket.close()
-                return
+            # player_name = client_socket.recv(1024).decode().strip()
+            # if not player_name:
+            #     logging.warning("Empty player name received, closing connection")
+            #     client_socket.close()
+            #     return
+            #
+            # self.client_list.append(client_socket)
+            # self.client_name_map[client_socket] = player_name
+            # self.player_names.append(player_name)
+            #
+            # threading.Thread(target=self.handle_client, daemon=True, args=(client_socket, addr)).start()
+            # self.broadcast_player_list()
+            if role == "lobby":
+                player_name = client_socket.recv(1024).decode().strip()
+            else:
+                # For game clients, assign a default name automatically.
+                player_name = f"Player_{self.user_count - 1}"
 
             self.client_list.append(client_socket)
             self.client_name_map[client_socket] = player_name
             self.player_names.append(player_name)
 
+            # Start listening for further data from the client.
             threading.Thread(target=self.handle_client, daemon=True, args=(client_socket, addr)).start()
             self.broadcast_player_list()
 
@@ -284,7 +297,9 @@ class Server:
                         self.user_count += 1
 
                     # Start the client listener thread regardless of role
-                    threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+                    # threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
+                    # NO
+                    threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address, role)).start()
 
         except Exception as e:
             logging.error(f"Connection loop error: {e}")
