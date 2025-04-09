@@ -84,7 +84,8 @@ class GameLobby:
 
         while running:
             if self.start_game_signal:
-                start_game()
+                # This needs to send the IP and Port or else it just defaults
+                start_game(self.server_ip, self.server_port)
                 return
 
             self.draw_lobby()
