@@ -6,8 +6,7 @@ import time
 from server.packet_maker import PacketMaker
 from server.packet_maker import ServerPacketType, ClientPacketType
 from Engine.player import Player
-from server.broadcast_announcer import start_broadcast, get_local_ip
-
+from Engine.gameobject import GameObject
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
 
@@ -87,6 +86,38 @@ class Server:
             logging.info("Received game start request. Broadcasting to all clients.")
             start_msg = PacketMaker.make(ServerPacketType.START_GAME)
             self.broadcast(start_msg)
+        elif action == ClientPacketType.PICKUP_ITEM:
+            player_id, object_id = int(parts[1]),int( parts[2])
+            update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
+            self.broadcast(update_msg)
+
+        elif action == ClientPacketType.DROP_ITEM:
+            player_id, object_id = int(parts[1]), int(parts[2])
+            player = self.players.get(player_id)
+            obj = self.objects.get(object_id)
+
+            if player and obj:
+                # Drop the object in front of the player
+                obj.x = player.x 
+                obj.y = player.y - 50
+                obj.held_by = None
+
+                update_msg = PacketMaker.make(
+                    ServerPacketType.DROP_ITEM,
+                    player_id=player_id,
+                    object_id=object_id,
+                    x=obj.x,
+                    y=obj.y
+                )
+                self.broadcast(update_msg)
+
+        elif action == ClientPacketType.DESPAWN_ITEM:
+            object_id = int(parts[2])  # or adjust if only 2 parts
+            if object_id in self.objects:
+                del self.objects[object_id]
+                print(f"Server: Despawning item {object_id}")
+                update_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
+                self.broadcast(update_msg)
 
     def heartbeat_loop(self, interval=5):
         # This function sends a heartbeat message to all clients to check if they are still connected
@@ -121,38 +152,7 @@ class Server:
             except Exception as e:
                 logging.warning(f"Failed to send player list: {e}")
 
-        if action == ClientPacketType.PICKUP_ITEM:
-            player_id, object_id = int(parts[1]),int( parts[2])
-            update_msg = PacketMaker.make(ServerPacketType.PICKUP_ITEM, player_id, object_id)
-            self.broadcast(update_msg)
-
-        if action == ClientPacketType.DROP_ITEM:
-            player_id, object_id = int(parts[1]), int(parts[2])
-            player = self.players.get(player_id)
-            obj = self.objects.get(object_id)
-
-            if player and obj:
-                # Drop the object in front of the player
-                obj.x = player.x 
-                obj.y = player.y - 50
-                obj.held_by = None
-
-                update_msg = PacketMaker.make(
-                    ServerPacketType.DROP_ITEM,
-                    player_id=player_id,
-                    object_id=object_id,
-                    x=obj.x,
-                    y=obj.y
-                )
-                self.broadcast(update_msg)
-
-        if action == ClientPacketType.DESPAWN_ITEM:
-            object_id = int(parts[2])  # or adjust if only 2 parts
-            if object_id in self.objects:
-                del self.objects[object_id]
-                print(f"Server: Despawning item {object_id}")
-                update_msg = PacketMaker.make(ServerPacketType.DESPAWN_ITEM, object_id=object_id)
-                self.broadcast(update_msg)
+        
 
         # if action == ClientPacketType.SPAWN_ITEM:
         #     player_id, object_id = int(parts[1]), parts[2]
@@ -204,14 +204,24 @@ class Server:
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)
 
-    def _connection_loop(self):
+    def start(self):
+        self.server_socket.bind((self.host, self.port))
+        self.server_socket.listen(4)
+        self.server_socket.settimeout(1.0)
+        logging.info(f"Server started on {self.host}:{self.port}")
+
         try:
             while self.running:
                 result = self.accept_connection()
                 if result:
                     client_socket, address = result
                     client_socket.send(str(self.user_count).encode())
+
+                    self.player_init(self.user_count)
+                    self.chest_init(self.user_count)
+
                     self.user_count += 1
+
                     threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
         except Exception as e:
             logging.error(f"Connection loop error: {e}")
