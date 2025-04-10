@@ -1,4 +1,4 @@
-# Game Project with Pygame
+# Knight Club - Game Project with Pygame
 
 This project is a Python-based game using Pygame. It supports both hosting and joining games over a LAN (Local Area Network), making it easy to play multiplayer with others on the same network.
 
