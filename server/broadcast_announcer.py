@@ -46,6 +46,6 @@ def start_broadcast(ip, port, player_count, max_players, server_name):
 # Example usage
 if __name__ == "__main__":
     ip = get_local_ip()
-    start_broadcast(ip, 53333, 1, 8, "Caiden's LAN Party")
+    start_broadcast(ip, 53333, 1, 8, "LAN Party")
     while True:
         time.sleep(1)
