@@ -28,8 +28,7 @@ class Server:
         self.client_name_map = {}
         self.next_object_id = 100
         self.running = True
-        self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True)
-        self.object_spawn_thread.start()
+        self.object_spawn_thread = None
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.object_locks = {}
 
@@ -113,6 +112,7 @@ class Server:
             time.sleep(0.1)
             self.broadcast_players()
             self.broadcast_chests()
+            self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True).start()
         elif action == ClientPacketType.PICKUP_ITEM:
             player_id, object_id = int(parts[1]),int( parts[2])
             player = self.players.get(player_id)
@@ -301,9 +301,6 @@ class Server:
         screen_width, screen_height = 1280, 720
 
         while self.running:
-        # wait until at least two clients are connected
-            while self.running and len(self.client_list) < 2:
-                time.sleep(1)
 
             object_id = self.next_object_id
             self.object_locks[object_id] = threading.Lock()
@@ -331,30 +328,6 @@ class Server:
 
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)
-
-    # def start(self):
-    #     self.server_socket.bind((self.host, self.port))
-    #     self.server_socket.listen(4)
-    #     self.server_socket.settimeout(1.0)
-    #     logging.info(f"Server started on {self.host}:{self.port}")
-
-    #     try:
-    #         while self.running:
-    #             result = self.accept_connection()
-    #             if result:
-    #                 client_socket, address = result
-    #                 client_socket.send(str(self.user_count).encode())
-
-    #                 self.player_init(self.user_count)
-    #                 self.chest_init(self.user_count)
-
-    #                 self.user_count += 1
-
-    #                 threading.Thread(target=self.new_client, daemon=True, args=(client_socket, address)).start()
-    #     except Exception as e:
-    #         logging.error(f"Connection loop error: {e}")
-    #     finally:
-    #         self.shutdown()
 
     def start(self):
         while True:
