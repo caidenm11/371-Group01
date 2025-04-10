@@ -23,8 +23,8 @@ def main():
     local_ip = get_local_ip()
     # server.server_socket.bind((local_ip, server.port))
 
-    # print(f"\n🌐 Server started! Local IP for clients on same Wi-Fi: {local_ip}")
-    print("📡 Clients should connect using this IP.\n")
+    # print(f"\nServer started! Local IP for clients on same Wi-Fi: {local_ip}")
+    print("Clients should connect using this IP.\n")
     server_thread = threading.Thread(target=server.start)
     server_thread.start()
 
