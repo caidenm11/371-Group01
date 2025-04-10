@@ -82,7 +82,7 @@ def draw_win_screen(player_id):
         screen.blit(text, text_rect)
         pygame.display.flip()
 
-        time.sleep(10)  # Show the win screen for 10 seconds before quitting
+        time.sleep(5)  # Show the win screen for 10 seconds before quitting
         running = False  # Exit the loop after 10 seconds
 
     pygame.quit()  # Quit pygame when done
@@ -96,7 +96,7 @@ def run_main_menu_screen(host="0.0.0.0", port=53333):
 
 
 def start_game(host="0.0.0.0", port=53333):
-    global players, objects
+    global players, objects, chests
 
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -110,14 +110,13 @@ def start_game(host="0.0.0.0", port=53333):
         print(f"❌ Failed to connect to server at {host}:{port}: {e}")
         return
 
-    global chests
-    pygame.init()
-
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 74)
 
     running = True
     dt = 0
+
+    send_key("ad")
 
     # players = {i: Player(i, screen.get_width() / 2, screen.get_height() / 2) for i in range(4)}
     # putting the chests in the 4 corners of the screen

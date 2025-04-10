@@ -107,11 +107,12 @@ class Server:
         elif action == ClientPacketType.REQUEST_START_GAME:
             logging.info("Received game start request. Broadcasting to all clients.")
 
-            # self.broadcast_players()
-            # self.broadcast_chests()
-
             start_msg = PacketMaker.make(ServerPacketType.START_GAME)
             self.broadcast(start_msg)
+
+            time.sleep(0.1)
+            self.broadcast_players()
+            self.broadcast_chests()
         elif action == ClientPacketType.PICKUP_ITEM:
             player_id, object_id = int(parts[1]),int( parts[2])
             player = self.players.get(player_id)
@@ -325,8 +326,8 @@ class Server:
             self.broadcast(packet)
             logging.info(f"Spawned item {object_id} at ({x},{y})")
 
-            self.broadcast_players()
-            self.broadcast_chests()
+            # self.broadcast_players()
+            # self.broadcast_chests()
 
             # random item spawns at random x,y every 5 seconds
             time.sleep(5)
