@@ -12,6 +12,8 @@ from Engine.gameobject import GameObject
 from server.broadcast_announcer import start_broadcast, get_local_ip
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(levelname)s: %(message)s')
 
+import server.server_ui as server_ui_var
+
 
 class Server:
     def __init__(self, host='0.0.0.0', port=53333):
@@ -163,6 +165,8 @@ class Server:
                         print(f"Player {player_id} has won the game!")
                         win_msg = PacketMaker.make(ServerPacketType.WIN_PLAYER, player_id=player_id)
                         self.broadcast(win_msg)
+                        server_ui_var.running = False
+                        
 
                 update_msg = PacketMaker.make(
                     ServerPacketType.DROP_ITEM,

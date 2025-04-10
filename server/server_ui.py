@@ -17,6 +17,8 @@ MAX_LOG_LINES = 100
 
 log_lines = []
 
+running = True
+
 
 class PygameLogHandler(logging.Handler):
     def emit(self, record):
@@ -40,6 +42,7 @@ def get_local_ip():
 
 
 def server_ui():
+    global running
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Server UI")
