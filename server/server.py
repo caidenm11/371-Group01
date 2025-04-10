@@ -32,11 +32,11 @@ class Server:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.object_locks = {}
 
-    def is_near_chest(self, obj, chest, chest_size=100, obj_size=50, radius=60):
+    def is_near_chest(self, obj, chest, chest_size=100, obj_size=50, radius=60, chest_offset_x=-20):
         """
         Checks if the object's center is within `radius` pixels of the chest's center.
         """
-        chest_center_x = chest.x + chest_size // 2
+        chest_center_x = chest.x + chest_size // 2 + chest_offset_x
         chest_center_y = chest.y + chest_size // 2
 
         obj_center_x = obj.x + obj_size // 2
