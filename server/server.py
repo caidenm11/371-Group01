@@ -137,7 +137,7 @@ class Server:
             if player and obj:
                 # Drop the object in front of the player
                 obj.x = player.x 
-                obj.y = player.y - 50
+                obj.y = player.y
                 obj.held_by = None
 
                 if self.is_near_chest(obj, chest):

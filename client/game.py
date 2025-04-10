@@ -30,7 +30,7 @@ class Player:
         self.color = color  # Placeholder for unique player colors
         self.inventory = []  # List of held object IDs
         self.image = pygame.image.load(f"resources/player_{player_id}.png")
-        self.image = pygame.transform.scale(self.image, (70, 70))
+        self.image = pygame.transform.scale(self.image, (80, 80))
 
     def draw(self, screen):
         pygame.draw.circle(screen, self.color, self.pos, 40)
@@ -191,11 +191,11 @@ def start_game(host="0.0.0.0", port=53333):
         # update position of objects held by players
         for player in players.values():
             if len(player.inventory) > 0:
-                player.inventory[0].rect.center = (player.pos.x - 40, player.pos.y - 50)
+                player.inventory[0].rect.center = (player.pos.x, player.pos.y)
 
         for obj in objects.values():
             if obj.held_by is not None:
-                obj.rect.topleft = (players[obj.held_by].pos.x, players[obj.held_by].pos.y - 50)
+                obj.rect.topleft = (players[obj.held_by].pos.x + 40, players[obj.held_by].pos.y + 20)
 
         # draw all objects
         for obj in objects.values():
