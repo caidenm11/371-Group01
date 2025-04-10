@@ -2,9 +2,9 @@
 
 Knight Club is a competitive multiplayer game where players race to collect a full set of armor. The first player to gather all four pieces wins. To slow down their opponents, players can also strategically pick up armor they don’t need, blocking others from completing their set.
 
+---
+
 This project is a Python-based game built with Pygame. It supports both hosting and joining games over a Local Area Network (LAN), making it easy to play with others on the same network.
-
-
 
 ---
 
