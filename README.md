@@ -1,14 +1,16 @@
 # Game Project with Pygame
 
-This project is a Python-based game using Pygame. It includes both client-server functionality, allowing you to either host a game or join an existing server.
+This project is a Python-based game using Pygame. It supports both hosting and joining games over a LAN (Local Area Network), making it easy to play multiplayer with others on the same network.
+
+---
 
 ## Setting Up the Development Environment
 
 To get started with this project, follow these steps:
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
-First, clone the project repository to your local machine:
+Clone the project repository to your local machine:
 
 ```bash
 git clone https://github.com/caidenm11/371-Group01.git
@@ -29,8 +31,6 @@ A virtual environment helps to manage dependencies and keep them isolated from y
   python -m venv venv
   ```
 
-This will create a new folder named `venv` in your project directory.
-
 ### 3. Activate the Virtual Environment
 
 - **On macOS/Linux**:
@@ -47,56 +47,71 @@ Once activated, you should see `(venv)` in your terminal prompt.
 
 ### 4. Install Project Dependencies
 
-With the virtual environment activated, install all the required dependencies from `requirements.txt`:
+With the virtual environment activated, install all the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This will install Pygame and any other dependencies listed in the `requirements.txt` file.
+---
 
-### 5. Running the Game
+## Running the Game
 
-You can now run the game by using the appropriate entry point.
+To launch the game, use the following command:
 
-To start a new game:
-  ```bash
-  python startclient.py
-  ```
+```bash
+python startclient.py
+```
 
-### 6. Deactivate the Virtual Environment
+This will launch the main menu of the game.
 
-Once you’re done working on the project, you can deactivate the virtual environment:
+---
+
+## Hosting and Joining a LAN Game
+
+Follow these steps to host and join a multiplayer game over LAN:
+
+### Hosting the Game
+
+1. On the host machine, launch the game:
+   ```bash
+   python startclient.py
+   ```
+
+2. In the game menu, click **Start Server**.  
+   This starts a local server on your machine.
+
+3. Then click **Connect to Server** to initiate a connection to the server you just started.
+
+4. Click **Refresh** to scan for available LAN servers.
+
+5. Select the server from the list and click **Join Selected**.
+
+6. Once all players have joined, click **Start Game** to begin the session.
+
+### Joining the Game from Another Computer on LAN
+
+1. On the client machine (on the same network), run:
+   ```bash
+   python startclient.py
+   ```
+
+2. Click **Connect to Server**.
+
+3. Click **Refresh** to discover available LAN servers.
+
+4. Select the host’s server and click **Join Selected**.
+
+5. Wait for the host to start the game.
+
+---
+
+## Deactivating the Virtual Environment
+
+When you're done working on the project:
 
 ```bash
 deactivate
 ```
 
 This will return you to your global Python environment.
-
-
-
-
-### Changes
-~~
-
-#### Server
-
-To run the server standalone currently just after installing all of the packages run python (or python3 on mac) startserver.py.
-
-
-#### Client 
-run python (or python3 on mac) startclient.py --host <server_address> to connect to the server.
-  To connect from a client that's on the same wifi, find the server's local IP address and use that as the host.
-
-  To find the local IP address of the server, run `ipconfig` on Windows or `ifconfig` on Linux/Mac.
-
-  The local IP address is typically in the format 192.168.x.x or 10.x.x.x.
-
-  To run this will be in the format python `startclient.py --host 192.168.1.42`
-      where `192.168.1.42` is the local IP address of the server.
-
-
-
-
- 
