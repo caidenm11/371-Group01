@@ -109,7 +109,7 @@ class Server:
             start_msg = PacketMaker.make(ServerPacketType.START_GAME)
             self.broadcast(start_msg)
 
-            time.sleep(0.4)
+            time.sleep(0.3)
             self.broadcast_players()
             self.broadcast_chests()
             self.object_spawn_thread = threading.Thread(target=self.spawn_items_loop, daemon=True).start()
